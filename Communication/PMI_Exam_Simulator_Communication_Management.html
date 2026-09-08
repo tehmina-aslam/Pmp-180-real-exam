@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent PMP practice simulator for Communication Management.">
+<title>PMI Exam Simulator — Communication Management</title>
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--surface2:#f6f9fc;--text:#16202e;--muted:#5b6b80;--accent:#12386b;--accent2:#1c5fa8;--border:#dde5ee;--border2:#c6d3e2;--ok:#1a7f4b;--bad:#b3261e;--warn:#a8700a;--gold:#b8860b}
+[data-theme="dark"]{--bg:#0e1520;--surface:#16202e;--surface2:#1b2635;--text:#e7edf5;--muted:#9fb0c4;--accent:#5aa2e8;--accent2:#7fbcf5;--border:#28374a;--border2:#3a4c63;--ok:#4ecf8b;--bad:#ff6f61;--warn:#e0b44a;--gold:#d9ae4a}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;overflow:hidden;display:flex;flex-direction:column;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);padding:.5rem .9rem}
+button:hover{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
+#app{flex:1 1 auto;min-height:0;display:flex}.screen{display:none;width:100%;min-width:0}.screen.show{display:flex;flex-direction:column;min-height:0}
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:1.1rem 1.2rem}.screen>.wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;box-shadow:0 2px 14px rgba(16,32,56,.07)}
+h1,h2,h3{margin:.2rem 0 .7rem;color:var(--accent)}h1{font-size:1.55rem}h2{font-size:1.22rem}h3{font-size:1.02rem}
+p{margin:.5rem 0}.small{font-size:.85rem}.muted{color:var(--muted)}.center{text-align:center}.brand{font-weight:800;letter-spacing:.4px;color:var(--accent)}
+.tag{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:.12rem .6rem;font-size:.74rem;color:var(--muted);margin-right:.35rem}
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}.hero-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.8rem;text-align:center}.hero-stat strong{display:block;color:var(--accent);font-size:1.35rem}
+.notice{border-left:4px solid var(--accent);background:var(--surface2);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}.disclaimer{font-size:.78rem;color:var(--muted);margin-top:1rem}
+#exam.screen.show>.wrap{overflow:hidden;display:flex;flex-direction:column}
+.toolbar{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--border);padding:.45rem .9rem;display:flex;gap:.4rem;align-items:center;flex-wrap:nowrap;min-width:0}
+.toolbar .brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}.toolbar .sp,.navbar .sp{flex:1}
+.clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.02rem;letter-spacing:.5px;padding:.3rem .7rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);white-space:nowrap}.clock.warn{color:#fff;background:var(--warn);border-color:var(--warn)}.clock.low{color:#fff;background:var(--bad);border-color:var(--bad)}
+#qpane{flex:1 1 auto;min-height:0;overflow:hidden;padding:.85rem 0 1rem;display:flex;flex-direction:column}
+.qcard{flex:1 1 auto;min-height:0;overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.2rem 1.4rem 1.4rem;box-shadow:0 1px 3px rgba(16,32,56,.06)}
+.qcard>*{max-width:940px;margin-left:auto;margin-right:auto}.qnum{font-weight:700;color:var(--muted);font-size:.82rem;margin:0 0 .55rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.flagtag{background:var(--warn);color:#fff;border-radius:5px;padding:.05rem .45rem;font-size:.7rem;font-weight:700}.stem{font-size:1.04rem;margin:.15rem 0 .95rem;line-height:1.65}
+.opt{border:1px solid var(--border2);background:var(--surface);border-radius:10px;padding:.68rem .85rem;margin-bottom:.55rem;cursor:pointer;display:flex;gap:.7rem;align-items:flex-start;transition:.12s}
+.opt:hover{border-color:var(--accent2);background:var(--surface2)}.opt.sel{border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .ltr{flex:0 0 1.55rem;height:1.55rem;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:var(--muted);background:var(--surface)}.opt.sel .ltr{background:var(--accent);border-color:var(--accent);color:#fff}
+.navbar{flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);padding:.55rem 1rem;display:flex;gap:.45rem;align-items:center;flex-wrap:nowrap;min-width:0}.qcounter{font-size:.78rem;font-weight:700;color:var(--muted);padding:0 .5rem;white-space:nowrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(8,16,28,.55);z-index:60;align-items:center;justify-content:center;padding:1rem}.modal.show{display:flex}.modal .box{background:var(--surface);border-radius:14px;padding:1.2rem;max-width:760px;width:100%;max-height:86vh;overflow:auto;border:1px solid var(--border2)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.35rem;margin-top:.6rem}.navcell{border:1px solid var(--border2);border-radius:7px;padding:.4rem 0;text-align:center;font-size:.78rem;cursor:pointer;background:var(--surface2)}.navcell.ans{background:var(--accent);color:#fff;border-color:var(--accent)}.navcell.flag{outline:2px solid var(--warn)}
+.scoreBig{font-size:3rem;font-weight:800;color:var(--accent);line-height:1}.hero{font-size:1.2rem;font-weight:800;margin:.5rem 0;padding:.35rem 1rem;border-radius:999px;display:inline-block}.hero.pass{background:var(--ok);color:#fff}.hero.mid{background:var(--warn);color:#fff}.hero.low{background:var(--bad);color:#fff}
+.statrow{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0}.statbox{flex:1 1 120px;border:1px solid var(--border2);border-radius:10px;padding:.65rem .8rem;text-align:center;background:var(--surface2)}.statv{font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1.1}.statl{font-size:.78rem;color:var(--muted)}
+.bar{height:12px;border-radius:6px;background:var(--surface2);overflow:hidden;border:1px solid var(--border2);margin:.5rem 0}.bar>span{display:block;height:100%;background:var(--accent)}
+.result-message{margin:1rem 0;padding:1rem;border-radius:10px;border:1px solid var(--border2);background:var(--surface2)}.cta{border:2px solid var(--accent);border-radius:12px;padding:1rem 1.1rem;margin:1rem 0;background:var(--surface2)}.cta-buttons{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.revitem{border:1px solid var(--border2);border-radius:10px;padding:.8rem .95rem;margin-bottom:.7rem;background:var(--surface)}.revitem.correct{border-left:5px solid var(--ok)}.revitem.incorrect{border-left:5px solid var(--bad)}.revitem.skipped{border-left:5px solid var(--muted)}
+.answerline,.explain{font-size:.88rem;margin:.25rem 0}.trapbox{margin-top:.55rem;padding:.65rem .75rem;border-radius:8px;background:var(--surface2);border-left:4px solid var(--gold);font-size:.86rem}
+.footer{flex:0 0 auto;text-align:center;font-size:.72rem;color:var(--muted);padding:.35rem 1rem;border-top:1px solid var(--border);background:var(--surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:720px){.hero-grid{grid-template-columns:repeat(2,1fr)}.toolbar .brand{max-width:35vw}.toolbar .tag{display:none}.navbar{gap:.25rem;padding:.45rem}.navbar button{padding:.42rem .55rem;font-size:.82rem}.qcounter{padding:0 .15rem}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section id="intro" class="screen show"><div class="wrap"><div class="card" style="max-width:820px;margin:4vh auto">
+<div class="brand">PMI EXAM SIMULATOR</div>
+<h1>Communication Management</h1>
+<p class="muted">10 exam-style trap questions focused on choosing the right communication approach, tailoring messages, resolving misunderstandings, virtual-team communication, and communication planning.</p>
+
+<div class="hero-grid">
+<div class="hero-stat"><strong>10</strong><span class="small muted">Questions</span></div>
+<div class="hero-stat"><strong>13:20</strong><span class="small muted">Exam Time</span></div>
+<div class="hero-stat"><strong>80%</strong><span class="small muted">Target Score</span></div>
+<div class="hero-stat"><strong>1</strong><span class="small muted">Best Answer</span></div>
+</div>
+
+<div class="notice small">
+<strong>How to approach communication traps:</strong>
+Understand the communication need before choosing the medium. Tailor communication to the audience.
+Use interactive communication for ambiguity, conflict, urgency, or complex discussion.
+Do not confuse sending a message with confirming that it was understood.
+</div>
+
+<p class="small"><strong>Exam behavior:</strong> answer all 10 questions before viewing explanations. You may flag questions and return to them before submitting.</p>
+<button class="btn-primary" onclick="startExam()">Start PMI Exam Simulator</button>
+<button onclick="toggleTheme()">Theme</button>
+
+<p class="disclaimer">
+Independent practice material. This simulator is not affiliated with, sponsored by, or endorsed by PMI.
+The questions are original practice items and do not reproduce live PMI examination content.
+</p>
+</div></div></section>
+
+<section id="exam" class="screen">
+<div class="toolbar"><span class="brand small">PMI EXAM SIMULATOR</span><span class="tag">Communication Management</span><span class="sp"></span><button onclick="toggleTheme()">Theme</button><span id="clock" class="clock">13:20</span></div>
+<div class="wrap"><div id="qpane"></div></div>
+<div class="navbar"><span id="qCounter" class="qcounter"></span><button id="flagBtn" onclick="toggleFlag()">Flag</button><button onclick="openNavigator()">Navigator</button><span class="sp"></span><button id="prevBtn" onclick="prevQ()">Previous</button><button id="nextBtn" class="btn-primary" onclick="nextQ()">Next</button><button class="btn-danger" onclick="openSubmitModal()">Submit</button></div>
+</section>
+
+<section id="results" class="screen"><div class="wrap"><div class="card" id="resultsBody"></div></div></section>
+</div>
+
+<div class="footer">PMI Exam Simulator · Independent PMP® practice material · Not official PMI examination content</div>
+
+<div id="navModal" class="modal"><div class="box"><h3>Question Navigator</h3><p class="small muted">Blue = answered · gold outline = flagged</p><div id="navGrid" class="navgrid"></div><div style="margin-top:.9rem"><button class="btn-primary" onclick="closeNavigator()">Close</button></div></div></div>
+
+<div id="submitModal" class="modal"><div class="box" style="max-width:520px"><h3>Submit your simulator?</h3><p class="small">You will not be able to change answers after submission.</p><div id="submitSummary" class="small muted"></div><div style="margin-top:.9rem"><button class="btn-danger" onclick="finishExam(false)">Yes, submit</button><button onclick="closeSubmitModal()">Go back</button></div></div></div>
+
+<script>
+const PREMIUM_URL="YOUR_PREMIUM_PMP_PROGRAM_LINK_HERE";
+const FREE_COURSE_URL="YOUR_SKOOL_FREE_COURSE_LINK_HERE";
+
+const QUESTIONS=[
+{
+id:"cm_01",
+scenario:"A project manager must communicate a complex design change to two senior technical leads who disagree strongly about its impact. The decision is urgent and misunderstanding could cause rework. What is the BEST communication approach?",
+choices:[
+"A. Send a detailed email so both leads have a written record.",
+"B. Hold an interactive discussion with both leads and confirm the agreed understanding afterward.",
+"C. Upload the design change to the project repository and ask them to review it.",
+"D. Send separate instant messages to each lead to avoid confrontation."
+],
+correct:"B",
+explanation:"Complex, urgent, and potentially contentious information is best handled through interactive communication so questions can be resolved in real time. A written confirmation can follow to preserve the decision.",
+trap:"The trap is choosing email because it creates a record. A record is useful, but it does not replace real-time clarification when ambiguity and conflict are high."
+},
+{
+id:"cm_02",
+scenario:"A sponsor says the weekly project report contains too much technical detail and takes too long to read. The project manager also knows the engineering team needs detailed information. What should the project manager do?",
+choices:[
+"A. Continue sending the same report to everyone for consistency.",
+"B. Tailor the content and level of detail for different stakeholder groups.",
+"C. Remove technical details from all reports.",
+"D. Ask the sponsor to read only the executive-summary section of the existing report."
+],
+correct:"B",
+explanation:"Communication should be tailored to stakeholder needs. Executives may need concise decision-oriented information, while technical teams require greater detail.",
+trap:"Consistency does not mean identical communication for every stakeholder."
+},
+{
+id:"cm_03",
+scenario:"A distributed project team relies almost entirely on asynchronous written messages. Decisions routinely take several days because long message threads never reach closure. What should the project manager do?",
+choices:[
+"A. Move every discussion to live meetings.",
+"B. Agree with the team which decisions require synchronous discussion and how asynchronous threads will be closed.",
+"C. Reduce the number of communication tools without changing the decision process.",
+"D. Appoint the project manager as the final approver of every thread."
+],
+correct:"B",
+explanation:"The issue is not asynchronous communication itself but the lack of agreed closure rules. The team should define when synchronous communication is needed and how written decisions are concluded.",
+trap:"The trap is treating the communication channel as the problem when the real gap is the decision process."
+},
+{
+id:"cm_04",
+scenario:"A team member says, 'I sent the requirements to the vendor last week, so communication is complete.' The vendor later delivers the wrong configuration. Which principle BEST explains the failure?",
+choices:[
+"A. Communication is complete once the sender transmits the message.",
+"B. Effective communication requires confirmation that the receiver understood the intended message.",
+"C. Vendors should rely only on formal contract documents.",
+"D. The project manager should avoid using written communication for requirements."
+],
+correct:"B",
+explanation:"Sending information does not guarantee understanding. Effective communication includes feedback or confirmation that the receiver interpreted the message correctly.",
+trap:"The trap is confusing transmission with comprehension."
+},
+{
+id:"cm_05",
+scenario:"A project manager is preparing to select a communication technology for a multinational team working across several time zones. What should the project manager do FIRST?",
+choices:[
+"A. Choose the cheapest tool that supports video calls.",
+"B. Copy the communication setup used successfully on a previous project.",
+"C. Assess stakeholder communication requirements, constraints, accessibility, urgency, and available options.",
+"D. Purchase a new enterprise platform before the project starts."
+],
+correct:"C",
+explanation:"Communication technology should be selected after understanding communication requirements, geographic distribution, urgency, accessibility, sensitivity, and organizational constraints.",
+trap:"The trap is choosing a tool before defining the communication need."
+},
+{
+id:"cm_06",
+scenario:"A project has five core team members. Three additional members join. The sponsor asks why the communication approach should be revisited. What is the BEST explanation?",
+choices:[
+"A. Communication channels increase from 10 to 28, increasing coordination complexity.",
+"B. Communication channels increase from 5 to 8, so only a minor adjustment is needed.",
+"C. Communication channels increase from 20 to 56.",
+"D. Communication channels do not change because only formal stakeholders count."
+],
+correct:"A",
+explanation:"Potential communication channels are n(n−1)/2. With 5 members: 5×4/2 = 10. With 8 members: 8×7/2 = 28.",
+trap:"The trap is assuming communication complexity rises linearly with team size."
+},
+{
+id:"cm_07",
+scenario:"During a steering committee meeting, the project manager presents a detailed status update. A senior stakeholder interrupts and says, 'Just tell me whether I need to make a decision today.' What should the project manager do NEXT?",
+choices:[
+"A. Continue the full presentation so all planned information is covered.",
+"B. Ask the stakeholder to wait until the final slide.",
+"C. Shift to the decision-relevant information and tailor the discussion to the stakeholder's immediate need.",
+"D. End the meeting and send the full presentation afterward."
+],
+correct:"C",
+explanation:"Effective communication is audience- and purpose-driven. If the stakeholder needs decision information, the project manager should adapt the communication to that need.",
+trap:"The trap is following the communication plan mechanically instead of adapting to the stakeholder's purpose."
+},
+{
+id:"cm_08",
+scenario:"Two regional teams misunderstand the same requirement in different ways. The project manager needs to restore a common understanding quickly. What should the project manager do?",
+choices:[
+"A. Resend the original requirement document and ask both teams to read it carefully.",
+"B. Hold a joint clarification session, resolve interpretation differences, and issue a written summary with examples.",
+"C. Ask each regional manager to interpret the requirement for their own team.",
+"D. Assign one team to follow the other team's interpretation."
+],
+correct:"B",
+explanation:"A shared clarification session enables immediate feedback and alignment, while a written summary preserves the agreed interpretation and examples.",
+trap:"The trap is repeating the same communication method that already failed."
+},
+{
+id:"cm_09",
+scenario:"A sensitive organizational change will affect employee roles and is likely to create anxiety. Which communication approach is MOST appropriate?",
+choices:[
+"A. Post the announcement on the project intranet because pull communication is efficient.",
+"B. Send one mass email so everyone receives exactly the same message.",
+"C. Use interactive communication with affected groups and managers, supported by clear written follow-up.",
+"D. Wait until implementation so employees receive only confirmed information."
+],
+correct:"C",
+explanation:"Sensitive, high-impact change requires interactive communication so concerns can be addressed, context can be provided, and feedback can be gathered. Written follow-up reinforces consistency.",
+trap:"The trap is choosing the most efficient channel rather than the most effective one for a sensitive change."
+},
+{
+id:"cm_10",
+scenario:"A project manager discovers that a key stakeholder prefers monthly email updates, while the communications management plan specifies a weekly dashboard for that stakeholder group. What should the project manager do?",
+choices:[
+"A. Continue the weekly dashboard because the approved plan cannot be changed.",
+"B. Ignore the preference because communication frequency should be standardized.",
+"C. Evaluate the stakeholder's information needs and update the communication approach or plan as appropriate.",
+"D. Send both the weekly dashboard and monthly email indefinitely."
+],
+correct:"C",
+explanation:"Communication plans should be monitored and adapted when stakeholder needs or preferences change. The project manager evaluates the requirement and updates the approach through appropriate project procedures.",
+trap:"The trap is treating the communications management plan as static instead of a living management artifact."
+}
+];
+
+let current=0,answers=Array(QUESTIONS.length).fill(null),flags=Array(QUESTIONS.length).fill(false),secondsLeft=800,timerHandle=null,startedAt=null;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("show"));document.getElementById(id).classList.add("show")}
+function toggleTheme(){const r=document.documentElement;r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark")}
+function startExam(){startedAt=Date.now();showScreen("exam");renderQuestion();renderClock();timerHandle=setInterval(()=>{secondsLeft--;renderClock();if(secondsLeft<=0){clearInterval(timerHandle);finishExam(true)}},1000)}
+function renderClock(){const e=document.getElementById("clock"),m=Math.floor(Math.max(0,secondsLeft)/60),s=Math.max(0,secondsLeft)%60;e.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");e.classList.toggle("warn",secondsLeft<=180&&secondsLeft>60);e.classList.toggle("low",secondsLeft<=60)}
+function renderQuestion(){const q=QUESTIONS[current],selected=answers[current],flagHtml=flags[current]?'<span class="flagtag">FLAGGED</span>':"";const opts=q.choices.map(c=>{const l=c.charAt(0),t=c.replace(/^[A-D]\.\s*/,"");return `<div class="opt ${selected===l?"sel":""}" onclick="selectAnswer('${l}')"><div class="ltr">${l}</div><div>${esc(t)}</div></div>`}).join("");document.getElementById("qpane").innerHTML=`<div class="qcard"><div class="qnum">Question ${current+1} of ${QUESTIONS.length} ${flagHtml}</div><div class="stem">${esc(q.scenario)}</div><div>${opts}</div></div>`;document.getElementById("qCounter").textContent=`${current+1}/${QUESTIONS.length}`;document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===QUESTIONS.length-1;document.getElementById("flagBtn").textContent=flags[current]?"Unflag":"Flag"}
+function selectAnswer(l){answers[current]=l;renderQuestion()}function toggleFlag(){flags[current]=!flags[current];renderQuestion()}function nextQ(){if(current<QUESTIONS.length-1){current++;renderQuestion()}}function prevQ(){if(current>0){current--;renderQuestion()}}
+function openNavigator(){document.getElementById("navGrid").innerHTML=QUESTIONS.map((q,i)=>`<div class="navcell ${answers[i]?"ans":""} ${flags[i]?"flag":""}" onclick="jumpTo(${i})">${i+1}</div>`).join("");document.getElementById("navModal").classList.add("show")}function closeNavigator(){document.getElementById("navModal").classList.remove("show")}function jumpTo(i){current=i;closeNavigator();renderQuestion()}
+function openSubmitModal(){const a=answers.filter(Boolean).length,f=flags.filter(Boolean).length;document.getElementById("submitSummary").innerHTML=`Answered: <strong>${a}/${QUESTIONS.length}</strong><br>Flagged: <strong>${f}</strong><br>Unanswered: <strong>${QUESTIONS.length-a}</strong>`;document.getElementById("submitModal").classList.add("show")}function closeSubmitModal(){document.getElementById("submitModal").classList.remove("show")}
+function finishExam(timeExpired){
+closeSubmitModal();if(timerHandle)clearInterval(timerHandle);
+const score=QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.correct?1:0),0),skipped=answers.filter(a=>!a).length,wrong=QUESTIONS.length-score-skipped,pct=score*10,elapsed=fmt(startedAt?Math.round((Date.now()-startedAt)/1000):0);
+let cls,band,msg,cta;
+if(score>=8){
+cls="pass";band="Strong Communication Understanding";
+msg="You have a strong grasp of communication planning, channel selection, tailoring, feedback, and communication effectiveness. Review any missed trap explanations, then continue to the next topic.";
+cta=`<div class="cta"><h3>Ready for the next challenge?</h3><p class="small">Continue your free PMP pathway, or explore the Premium PMP Preparation Program for deeper scenario practice, mock exams, weak-area tracking, and structured coaching.</p><div class="cta-buttons">${linkBtn(FREE_COURSE_URL,"Return to Free PMP Course","btn-primary")}${linkBtn(PREMIUM_URL,"Explore Premium PMP Program","")}</div></div>`;
+}else if(score>=6){
+cls="mid";band="Communication Knowledge Gaps Identified";
+msg="You understand the fundamentals, but the trap questions exposed gaps that can cost marks in situational communication questions. Review the explanations below before moving on.";
+cta=`<div class="cta"><h3>You are close — strengthen the gaps now</h3><p class="small">Join the <strong>Premium PMP Preparation Program</strong> for structured guidance, PMP mindset training, detailed answer reasoning, topic practice, and full mock exams.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Review Free Course","")}</div></div>`;
+}else{
+cls="low";band="Communication Management Needs Attention";
+msg="The result shows that communication medium, tailoring, feedback, and stakeholder communication needs are still blending together. Rewatch the lesson and focus on choosing communication based on purpose and audience.";
+cta=`<div class="cta"><h3>Stop guessing the communication logic</h3><p class="small">The Premium PMP Preparation Program is designed to help you understand the PMP mindset, distinguish tempting distractors, and practice communication scenarios under exam conditions.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Rewatch the Free Lesson","")}</div></div>`;
+}
+const review=QUESTIONS.map((q,i)=>{const a=answers[i],r=!a?"skipped":a===q.correct?"correct":"incorrect";return `<div class="revitem ${r}"><h3>Question ${i+1}</h3><p class="small"><strong>${esc(q.scenario)}</strong></p><div class="answerline"><strong>Your answer:</strong> ${esc(a?choice(q,a):"Skipped")}</div><div class="answerline"><strong>Correct answer:</strong> ${esc(choice(q,q.correct))}</div><div class="explain"><strong>Why:</strong> ${esc(q.explanation)}</div><div class="trapbox"><strong>PMI Trap:</strong> ${esc(q.trap)}</div></div>`}).join("");
+document.getElementById("resultsBody").innerHTML=`<div class="center"><div class="brand">PMI EXAM SIMULATOR</div><h1>Communication Management</h1>${timeExpired?'<p class="small" style="color:var(--bad);font-weight:700">Time expired — submitted automatically.</p>':""}<div class="scoreBig">${score}/10</div><div class="hero ${cls}">${band}</div><div class="bar"><span style="width:${pct}%"></span></div><p class="small muted">${pct}% · Target score 80%</p></div>
+<div class="statrow"><div class="statbox"><div class="statv">${score}</div><div class="statl">Correct</div></div><div class="statbox"><div class="statv">${wrong}</div><div class="statl">Incorrect</div></div><div class="statbox"><div class="statv">${skipped}</div><div class="statl">Skipped</div></div><div class="statbox"><div class="statv">${elapsed}</div><div class="statl">Time Used</div></div></div>
+<div class="result-message">${esc(msg)}</div>${cta}
+<h2>Answer Review &amp; PMI Traps</h2><p class="small muted">Study the trap explanation even when you answered correctly. The goal is to understand why the distractors were tempting.</p>${review}
+<div class="center" style="margin-top:1rem"><button class="btn-primary" onclick="restartExam()">Retake Simulator</button><button onclick="toggleTheme()">Theme</button></div>`;
+showScreen("results");
+}
+function restartExam(){current=0;answers=Array(QUESTIONS.length).fill(null);flags=Array(QUESTIONS.length).fill(false);secondsLeft=800;startedAt=null;showScreen("intro")}
+function choice(q,l){return q.choices.find(c=>c.startsWith(l+"."))||l}
+function fmt(s){const m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,"0")}`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function linkBtn(url,label,cls){if(!url||url.includes("YOUR_"))return `<button class="${cls}" onclick="alert('Add your Skool link in the HTML: PREMIUM_URL / FREE_COURSE_URL near the top of the script.')">${esc(label)}</button>`;return `<button class="${cls}" onclick="window.open('${esc(url)}','_blank','noopener')">${esc(label)}</button>`}
+</script>
+</body>
+</html>
