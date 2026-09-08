@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent PMP practice simulator for Team Management.">
+<title>PMI Exam Simulator — Team Management</title>
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--surface2:#f6f9fc;--text:#16202e;--muted:#5b6b80;--accent:#12386b;--accent2:#1c5fa8;--border:#dde5ee;--border2:#c6d3e2;--ok:#1a7f4b;--bad:#b3261e;--warn:#a8700a;--gold:#b8860b}
+[data-theme="dark"]{--bg:#0e1520;--surface:#16202e;--surface2:#1b2635;--text:#e7edf5;--muted:#9fb0c4;--accent:#5aa2e8;--accent2:#7fbcf5;--border:#28374a;--border2:#3a4c63;--ok:#4ecf8b;--bad:#ff6f61;--warn:#e0b44a;--gold:#d9ae4a}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;overflow:hidden;display:flex;flex-direction:column;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);padding:.5rem .9rem}
+button:hover{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
+#app{flex:1 1 auto;min-height:0;display:flex}.screen{display:none;width:100%;min-width:0}.screen.show{display:flex;flex-direction:column;min-height:0}
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:1.1rem 1.2rem}.screen>.wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;box-shadow:0 2px 14px rgba(16,32,56,.07)}
+h1,h2,h3{margin:.2rem 0 .7rem;color:var(--accent)}h1{font-size:1.55rem}h2{font-size:1.22rem}h3{font-size:1.02rem}
+p{margin:.5rem 0}.small{font-size:.85rem}.muted{color:var(--muted)}.center{text-align:center}.brand{font-weight:800;letter-spacing:.4px;color:var(--accent)}
+.tag{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:.12rem .6rem;font-size:.74rem;color:var(--muted);margin-right:.35rem}
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}.hero-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.8rem;text-align:center}.hero-stat strong{display:block;color:var(--accent);font-size:1.35rem}
+.notice{border-left:4px solid var(--accent);background:var(--surface2);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}.disclaimer{font-size:.78rem;color:var(--muted);margin-top:1rem}
+#exam.screen.show>.wrap{overflow:hidden;display:flex;flex-direction:column}
+.toolbar{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--border);padding:.45rem .9rem;display:flex;gap:.4rem;align-items:center;flex-wrap:nowrap;min-width:0}
+.toolbar .brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}.toolbar .sp,.navbar .sp{flex:1}
+.clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.02rem;letter-spacing:.5px;padding:.3rem .7rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);white-space:nowrap}.clock.warn{color:#fff;background:var(--warn);border-color:var(--warn)}.clock.low{color:#fff;background:var(--bad);border-color:var(--bad)}
+#qpane{flex:1 1 auto;min-height:0;overflow:hidden;padding:.85rem 0 1rem;display:flex;flex-direction:column}
+.qcard{flex:1 1 auto;min-height:0;overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.2rem 1.4rem 1.4rem;box-shadow:0 1px 3px rgba(16,32,56,.06)}
+.qcard>*{max-width:940px;margin-left:auto;margin-right:auto}.qnum{font-weight:700;color:var(--muted);font-size:.82rem;margin:0 0 .55rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.flagtag{background:var(--warn);color:#fff;border-radius:5px;padding:.05rem .45rem;font-size:.7rem;font-weight:700}.stem{font-size:1.04rem;margin:.15rem 0 .95rem;line-height:1.65}
+.opt{border:1px solid var(--border2);background:var(--surface);border-radius:10px;padding:.68rem .85rem;margin-bottom:.55rem;cursor:pointer;display:flex;gap:.7rem;align-items:flex-start;transition:.12s}
+.opt:hover{border-color:var(--accent2);background:var(--surface2)}.opt.sel{border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .ltr{flex:0 0 1.55rem;height:1.55rem;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:var(--muted);background:var(--surface)}.opt.sel .ltr{background:var(--accent);border-color:var(--accent);color:#fff}
+.navbar{flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);padding:.55rem 1rem;display:flex;gap:.45rem;align-items:center;flex-wrap:nowrap;min-width:0}.qcounter{font-size:.78rem;font-weight:700;color:var(--muted);padding:0 .5rem;white-space:nowrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(8,16,28,.55);z-index:60;align-items:center;justify-content:center;padding:1rem}.modal.show{display:flex}.modal .box{background:var(--surface);border-radius:14px;padding:1.2rem;max-width:760px;width:100%;max-height:86vh;overflow:auto;border:1px solid var(--border2)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.35rem;margin-top:.6rem}.navcell{border:1px solid var(--border2);border-radius:7px;padding:.4rem 0;text-align:center;font-size:.78rem;cursor:pointer;background:var(--surface2)}.navcell.ans{background:var(--accent);color:#fff;border-color:var(--accent)}.navcell.flag{outline:2px solid var(--warn)}
+.scoreBig{font-size:3rem;font-weight:800;color:var(--accent);line-height:1}.hero{font-size:1.2rem;font-weight:800;margin:.5rem 0;padding:.35rem 1rem;border-radius:999px;display:inline-block}.hero.pass{background:var(--ok);color:#fff}.hero.mid{background:var(--warn);color:#fff}.hero.low{background:var(--bad);color:#fff}
+.statrow{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0}.statbox{flex:1 1 120px;border:1px solid var(--border2);border-radius:10px;padding:.65rem .8rem;text-align:center;background:var(--surface2)}.statv{font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1.1}.statl{font-size:.78rem;color:var(--muted)}
+.bar{height:12px;border-radius:6px;background:var(--surface2);overflow:hidden;border:1px solid var(--border2);margin:.5rem 0}.bar>span{display:block;height:100%;background:var(--accent)}
+.result-message{margin:1rem 0;padding:1rem;border-radius:10px;border:1px solid var(--border2);background:var(--surface2)}.cta{border:2px solid var(--accent);border-radius:12px;padding:1rem 1.1rem;margin:1rem 0;background:var(--surface2)}.cta-buttons{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.revitem{border:1px solid var(--border2);border-radius:10px;padding:.8rem .95rem;margin-bottom:.7rem;background:var(--surface)}.revitem.correct{border-left:5px solid var(--ok)}.revitem.incorrect{border-left:5px solid var(--bad)}.revitem.skipped{border-left:5px solid var(--muted)}
+.answerline,.explain{font-size:.88rem;margin:.25rem 0}.trapbox{margin-top:.55rem;padding:.65rem .75rem;border-radius:8px;background:var(--surface2);border-left:4px solid var(--gold);font-size:.86rem}
+.footer{flex:0 0 auto;text-align:center;font-size:.72rem;color:var(--muted);padding:.35rem 1rem;border-top:1px solid var(--border);background:var(--surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:720px){.hero-grid{grid-template-columns:repeat(2,1fr)}.toolbar .brand{max-width:35vw}.toolbar .tag{display:none}.navbar{gap:.25rem;padding:.45rem}.navbar button{padding:.42rem .55rem;font-size:.82rem}.qcounter{padding:0 .15rem}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section id="intro" class="screen show"><div class="wrap"><div class="card" style="max-width:820px;margin:4vh auto">
+<div class="brand">PMI EXAM SIMULATOR</div>
+<h1>Team Management</h1>
+<p class="muted">10 exam-style trap questions focused on team leadership, conflict, coaching, motivation, self-organization, resource issues, and team performance.</p>
+
+<div class="hero-grid">
+<div class="hero-stat"><strong>10</strong><span class="small muted">Questions</span></div>
+<div class="hero-stat"><strong>13:20</strong><span class="small muted">Exam Time</span></div>
+<div class="hero-stat"><strong>80%</strong><span class="small muted">Target Score</span></div>
+<div class="hero-stat"><strong>1</strong><span class="small muted">Best Answer</span></div>
+</div>
+
+<div class="notice small">
+<strong>How to approach team traps:</strong>
+Coach before replacing. Facilitate before escalating. Remove impediments instead of controlling the team.
+Support self-organization within clear boundaries. Address root causes of performance problems, not only symptoms.
+</div>
+
+<p class="small"><strong>Exam behavior:</strong> answer all 10 questions before viewing explanations. You may flag questions and return to them before submitting.</p>
+<button class="btn-primary" onclick="startExam()">Start PMI Exam Simulator</button>
+<button onclick="toggleTheme()">Theme</button>
+
+<p class="disclaimer">
+Independent practice material. This simulator is not affiliated with, sponsored by, or endorsed by PMI.
+The questions are original practice items and do not reproduce live PMI examination content.
+</p>
+</div></div></section>
+
+<section id="exam" class="screen">
+<div class="toolbar"><span class="brand small">PMI EXAM SIMULATOR</span><span class="tag">Team Management</span><span class="sp"></span><button onclick="toggleTheme()">Theme</button><span id="clock" class="clock">13:20</span></div>
+<div class="wrap"><div id="qpane"></div></div>
+<div class="navbar"><span id="qCounter" class="qcounter"></span><button id="flagBtn" onclick="toggleFlag()">Flag</button><button onclick="openNavigator()">Navigator</button><span class="sp"></span><button id="prevBtn" onclick="prevQ()">Previous</button><button id="nextBtn" class="btn-primary" onclick="nextQ()">Next</button><button class="btn-danger" onclick="openSubmitModal()">Submit</button></div>
+</section>
+
+<section id="results" class="screen"><div class="wrap"><div class="card" id="resultsBody"></div></div></section>
+</div>
+
+<div class="footer">PMI Exam Simulator · Independent PMP® practice material · Not official PMI examination content</div>
+
+<div id="navModal" class="modal"><div class="box"><h3>Question Navigator</h3><p class="small muted">Blue = answered · gold outline = flagged</p><div id="navGrid" class="navgrid"></div><div style="margin-top:.9rem"><button class="btn-primary" onclick="closeNavigator()">Close</button></div></div></div>
+
+<div id="submitModal" class="modal"><div class="box" style="max-width:520px"><h3>Submit your simulator?</h3><p class="small">You will not be able to change answers after submission.</p><div id="submitSummary" class="small muted"></div><div style="margin-top:.9rem"><button class="btn-danger" onclick="finishExam(false)">Yes, submit</button><button onclick="closeSubmitModal()">Go back</button></div></div></div>
+
+<script>
+const PREMIUM_URL="YOUR_PREMIUM_PMP_PROGRAM_LINK_HERE";
+const FREE_COURSE_URL="YOUR_SKOOL_FREE_COURSE_LINK_HERE";
+
+const QUESTIONS=[
+{
+id:"tm_01",
+scenario:"A normally strong team member has missed two deadlines after being assigned unfamiliar work. The sponsor asks the project manager to replace the person immediately. What should the project manager do FIRST?",
+choices:[
+"A. Replace the team member to protect the schedule.",
+"B. Meet privately with the team member, identify the cause, and provide coaching or support.",
+"C. Escalate the issue to human resources.",
+"D. Reassign all of the team member's work to the highest performer."
+],
+correct:"B",
+explanation:"A capable team member struggling with unfamiliar work should first receive direct feedback, coaching, and support. Replacement is considered only after understanding the cause and giving the person a reasonable opportunity to improve.",
+trap:"The trap is jumping to replacement because deadlines were missed. PMI-style reasoning usually favors coaching and root-cause analysis first."
+},
+{
+id:"tm_02",
+scenario:"Two experienced team members strongly disagree about the technical approach. Both options meet the requirements, and the conflict is beginning to affect morale. What should the project manager do?",
+choices:[
+"A. Choose the approach personally to end the conflict quickly.",
+"B. Ask the sponsor to decide because the sponsor has final authority.",
+"C. Facilitate a collaborative discussion using agreed project criteria to reach a decision.",
+"D. Allow both approaches to be developed and select the better one later."
+],
+correct:"C",
+explanation:"When both parties have valid perspectives, collaborative problem-solving is the preferred approach because it uses objective criteria, preserves relationships, and increases commitment to the decision.",
+trap:"The trap is assuming authority solves conflict better than collaboration."
+},
+{
+id:"tm_03",
+scenario:"An agile team routinely asks the project manager to approve minor technical decisions that are clearly within the team's authority. Delivery is slowing. What should the project manager do?",
+choices:[
+"A. Continue approving the decisions to maintain control.",
+"B. Clarify the team's decision boundaries and coach the team to make decisions within them.",
+"C. Ask the sponsor to approve technical decisions instead.",
+"D. Reduce the team's authority because they are uncomfortable using it."
+],
+correct:"B",
+explanation:"The project manager should empower the team by clarifying decision rights and supporting self-organization within agreed boundaries. Requiring unnecessary approvals creates dependency and slows delivery.",
+trap:"The trap is confusing control with leadership. Servant leadership removes dependency rather than reinforcing it."
+},
+{
+id:"tm_04",
+scenario:"A team performance assessment shows declining collaboration, repeated misunderstandings, and low trust. What should the project manager do NEXT?",
+choices:[
+"A. Replace the lowest-rated team members.",
+"B. Identify specific development needs and facilitate coaching or team-building actions.",
+"C. Lower the team's performance targets until morale improves.",
+"D. Increase individual status reporting to monitor each person's output."
+],
+correct:"B",
+explanation:"A team performance assessment is used to identify actions such as training, coaching, mentoring, and team-building that improve team effectiveness.",
+trap:"The trap is treating a team assessment as a ranking tool instead of a development tool."
+},
+{
+id:"tm_05",
+scenario:"A new project team has moved past initial introductions. Team members are now challenging one another's ideas, debating roles, and experiencing frequent interpersonal conflict. Which stage of team development is this?",
+choices:[
+"A. Forming.",
+"B. Storming.",
+"C. Norming.",
+"D. Performing."
+],
+correct:"B",
+explanation:"Storming is characterized by conflict, competition, disagreement, and negotiation as team members work through roles, expectations, and ways of working.",
+trap:"The trap is choosing norming because the team is interacting more. Norming comes after the major conflict stage begins to settle."
+},
+{
+id:"tm_06",
+scenario:"A functional manager repeatedly assigns urgent operational work to a shared team member, causing the project member to miss project commitments. What should the project manager do?",
+choices:[
+"A. Discipline the team member for poor prioritization.",
+"B. Reassign the team member's project work without discussion.",
+"C. Work with the functional manager to clarify priorities and renegotiate the member's availability.",
+"D. Escalate directly to the CEO because project work should always take priority."
+],
+correct:"C",
+explanation:"In a matrix environment, resource conflicts are best addressed collaboratively with the functional manager by clarifying commitments, priorities, and availability.",
+trap:"The trap is blaming the team member for a structural resource-allocation problem."
+},
+{
+id:"tm_07",
+scenario:"A high-performing team completes a difficult milestone ahead of schedule. The project manager wants to recognize the team. What is the BEST action?",
+choices:[
+"A. Give every team member the same reward without checking preferences.",
+"B. Review the approved recognition approach and provide timely recognition that is meaningful to the team.",
+"C. Wait until project closure so all recognition can be given at once.",
+"D. Reward only the top individual contributor."
+],
+correct:"B",
+explanation:"Recognition should be timely, appropriate, culturally sensitive, and aligned with the approved resource or recognition approach. Effective recognition reinforces desired team behavior.",
+trap:"The trap is assuming one type of reward motivates everyone equally."
+},
+{
+id:"tm_08",
+scenario:"A newly remote team reports low trust and frequent misunderstandings. The project manager notices that most interaction is task-only and team members rarely speak outside formal status meetings. What should the project manager do?",
+choices:[
+"A. Increase the number of written status reports.",
+"B. Facilitate team-building and create regular opportunities for richer interaction and collaboration.",
+"C. Ask the sponsor to require cameras to be on during every meeting.",
+"D. Replace remote team members with colocated resources."
+],
+correct:"B",
+explanation:"Virtual teams often need deliberate trust-building, collaboration practices, and richer communication opportunities. Team-building addresses the underlying relationship gap.",
+trap:"The trap is trying to solve a trust problem with more reporting or control."
+},
+{
+id:"tm_09",
+scenario:"During a sprint, one developer finishes early and asks the project manager for the next individual assignment. Other team members are struggling with testing and integration. What should the project manager encourage?",
+choices:[
+"A. Give the developer a new individual task to maximize utilization.",
+"B. Ask the developer to help the team complete the highest-priority work and remove bottlenecks.",
+"C. Tell the developer to wait until the next sprint.",
+"D. Ask the product owner to create extra work specifically for the developer."
+],
+correct:"B",
+explanation:"Agile teams optimize flow and team outcomes rather than individual utilization. A team member who becomes available should help remove bottlenecks and support completion of the team's committed work.",
+trap:"The trap is maximizing individual utilization instead of optimizing team delivery."
+},
+{
+id:"tm_10",
+scenario:"A senior specialist is the only person who understands a critical system and is becoming a bottleneck. The project manager is concerned about continuity risk. What should the project manager do?",
+choices:[
+"A. Protect the specialist from interruptions and keep all critical work with that person.",
+"B. Create opportunities for knowledge sharing, pairing, mentoring, and cross-training.",
+"C. Ask the sponsor to hire a second identical specialist immediately.",
+"D. Document the risk and take no action unless the specialist becomes unavailable."
+],
+correct:"B",
+explanation:"Cross-training, mentoring, pairing, and knowledge sharing reduce dependency on a single expert while building team capability and resilience.",
+trap:"The trap is protecting the expert so much that the knowledge bottleneck becomes even stronger."
+}
+];
+
+let current=0,answers=Array(QUESTIONS.length).fill(null),flags=Array(QUESTIONS.length).fill(false),secondsLeft=800,timerHandle=null,startedAt=null;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("show"));document.getElementById(id).classList.add("show")}
+function toggleTheme(){const r=document.documentElement;r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark")}
+function startExam(){startedAt=Date.now();showScreen("exam");renderQuestion();renderClock();timerHandle=setInterval(()=>{secondsLeft--;renderClock();if(secondsLeft<=0){clearInterval(timerHandle);finishExam(true)}},1000)}
+function renderClock(){const e=document.getElementById("clock"),m=Math.floor(Math.max(0,secondsLeft)/60),s=Math.max(0,secondsLeft)%60;e.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");e.classList.toggle("warn",secondsLeft<=180&&secondsLeft>60);e.classList.toggle("low",secondsLeft<=60)}
+function renderQuestion(){const q=QUESTIONS[current],selected=answers[current],flagHtml=flags[current]?'<span class="flagtag">FLAGGED</span>':"";const opts=q.choices.map(c=>{const l=c.charAt(0),t=c.replace(/^[A-D]\.\s*/,"");return `<div class="opt ${selected===l?"sel":""}" onclick="selectAnswer('${l}')"><div class="ltr">${l}</div><div>${esc(t)}</div></div>`}).join("");document.getElementById("qpane").innerHTML=`<div class="qcard"><div class="qnum">Question ${current+1} of ${QUESTIONS.length} ${flagHtml}</div><div class="stem">${esc(q.scenario)}</div><div>${opts}</div></div>`;document.getElementById("qCounter").textContent=`${current+1}/${QUESTIONS.length}`;document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===QUESTIONS.length-1;document.getElementById("flagBtn").textContent=flags[current]?"Unflag":"Flag"}
+function selectAnswer(l){answers[current]=l;renderQuestion()}function toggleFlag(){flags[current]=!flags[current];renderQuestion()}function nextQ(){if(current<QUESTIONS.length-1){current++;renderQuestion()}}function prevQ(){if(current>0){current--;renderQuestion()}}
+function openNavigator(){document.getElementById("navGrid").innerHTML=QUESTIONS.map((q,i)=>`<div class="navcell ${answers[i]?"ans":""} ${flags[i]?"flag":""}" onclick="jumpTo(${i})">${i+1}</div>`).join("");document.getElementById("navModal").classList.add("show")}function closeNavigator(){document.getElementById("navModal").classList.remove("show")}function jumpTo(i){current=i;closeNavigator();renderQuestion()}
+function openSubmitModal(){const a=answers.filter(Boolean).length,f=flags.filter(Boolean).length;document.getElementById("submitSummary").innerHTML=`Answered: <strong>${a}/${QUESTIONS.length}</strong><br>Flagged: <strong>${f}</strong><br>Unanswered: <strong>${QUESTIONS.length-a}</strong>`;document.getElementById("submitModal").classList.add("show")}function closeSubmitModal(){document.getElementById("submitModal").classList.remove("show")}
+function finishExam(timeExpired){
+closeSubmitModal();if(timerHandle)clearInterval(timerHandle);
+const score=QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.correct?1:0),0),skipped=answers.filter(a=>!a).length,wrong=QUESTIONS.length-score-skipped,pct=score*10,elapsed=fmt(startedAt?Math.round((Date.now()-startedAt)/1000):0);
+let cls,band,msg,cta;
+if(score>=8){
+cls="pass";band="Strong Team Understanding";
+msg="You have a strong grasp of team leadership, conflict resolution, coaching, motivation, self-organization, and resource management. Review any missed trap explanations, then continue to the next topic.";
+cta=`<div class="cta"><h3>Ready for the next challenge?</h3><p class="small">Continue your free PMP pathway, or explore the Premium PMP Preparation Program for deeper scenario practice, mock exams, weak-area tracking, and structured coaching.</p><div class="cta-buttons">${linkBtn(FREE_COURSE_URL,"Return to Free PMP Course","btn-primary")}${linkBtn(PREMIUM_URL,"Explore Premium PMP Program","")}</div></div>`;
+}else if(score>=6){
+cls="mid";band="Team Knowledge Gaps Identified";
+msg="You understand the fundamentals, but the trap questions exposed gaps that can cost marks in situational team questions. Review the explanations below before moving on.";
+cta=`<div class="cta"><h3>You are close — strengthen the gaps now</h3><p class="small">Join the <strong>Premium PMP Preparation Program</strong> for structured guidance, PMP mindset training, detailed answer reasoning, topic practice, and full mock exams.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Review Free Course","")}</div></div>`;
+}else{
+cls="low";band="Team Management Needs Attention";
+msg="The result shows that coaching, conflict handling, empowerment, motivation, and resource management are still blending together. Rewatch the lesson and focus on servant leadership, collaboration, and root-cause thinking.";
+cta=`<div class="cta"><h3>Stop guessing the team logic</h3><p class="small">The Premium PMP Preparation Program is designed to help you understand the PMP mindset, distinguish tempting distractors, and practice team scenarios under exam conditions.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Rewatch the Free Lesson","")}</div></div>`;
+}
+const review=QUESTIONS.map((q,i)=>{const a=answers[i],r=!a?"skipped":a===q.correct?"correct":"incorrect";return `<div class="revitem ${r}"><h3>Question ${i+1}</h3><p class="small"><strong>${esc(q.scenario)}</strong></p><div class="answerline"><strong>Your answer:</strong> ${esc(a?choice(q,a):"Skipped")}</div><div class="answerline"><strong>Correct answer:</strong> ${esc(choice(q,q.correct))}</div><div class="explain"><strong>Why:</strong> ${esc(q.explanation)}</div><div class="trapbox"><strong>PMI Trap:</strong> ${esc(q.trap)}</div></div>`}).join("");
+document.getElementById("resultsBody").innerHTML=`<div class="center"><div class="brand">PMI EXAM SIMULATOR</div><h1>Team Management</h1>${timeExpired?'<p class="small" style="color:var(--bad);font-weight:700">Time expired — submitted automatically.</p>':""}<div class="scoreBig">${score}/10</div><div class="hero ${cls}">${band}</div><div class="bar"><span style="width:${pct}%"></span></div><p class="small muted">${pct}% · Target score 80%</p></div>
+<div class="statrow"><div class="statbox"><div class="statv">${score}</div><div class="statl">Correct</div></div><div class="statbox"><div class="statv">${wrong}</div><div class="statl">Incorrect</div></div><div class="statbox"><div class="statv">${skipped}</div><div class="statl">Skipped</div></div><div class="statbox"><div class="statv">${elapsed}</div><div class="statl">Time Used</div></div></div>
+<div class="result-message">${esc(msg)}</div>${cta}
+<h2>Answer Review &amp; PMI Traps</h2><p class="small muted">Study the trap explanation even when you answered correctly. The goal is to understand why the distractors were tempting.</p>${review}
+<div class="center" style="margin-top:1rem"><button class="btn-primary" onclick="restartExam()">Retake Simulator</button><button onclick="toggleTheme()">Theme</button></div>`;
+showScreen("results");
+}
+function restartExam(){current=0;answers=Array(QUESTIONS.length).fill(null);flags=Array(QUESTIONS.length).fill(false);secondsLeft=800;startedAt=null;showScreen("intro")}
+function choice(q,l){return q.choices.find(c=>c.startsWith(l+"."))||l}
+function fmt(s){const m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,"0")}`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function linkBtn(url,label,cls){if(!url||url.includes("YOUR_"))return `<button class="${cls}" onclick="alert('Add your Skool link in the HTML: PREMIUM_URL / FREE_COURSE_URL near the top of the script.')">${esc(label)}</button>`;return `<button class="${cls}" onclick="window.open('${esc(url)}','_blank','noopener')">${esc(label)}</button>`}
+</script>
+</body>
+</html>
