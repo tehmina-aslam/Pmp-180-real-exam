@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent PMP practice simulator for Quality Management.">
+<title>PMI Exam Simulator — Quality Management</title>
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--surface2:#f6f9fc;--text:#16202e;--muted:#5b6b80;--accent:#12386b;--accent2:#1c5fa8;--border:#dde5ee;--border2:#c6d3e2;--ok:#1a7f4b;--bad:#b3261e;--warn:#a8700a;--gold:#b8860b}
+[data-theme="dark"]{--bg:#0e1520;--surface:#16202e;--surface2:#1b2635;--text:#e7edf5;--muted:#9fb0c4;--accent:#5aa2e8;--accent2:#7fbcf5;--border:#28374a;--border2:#3a4c63;--ok:#4ecf8b;--bad:#ff6f61;--warn:#e0b44a;--gold:#d9ae4a}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;overflow:hidden;display:flex;flex-direction:column;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);padding:.5rem .9rem}
+button:hover{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
+#app{flex:1 1 auto;min-height:0;display:flex}.screen{display:none;width:100%;min-width:0}.screen.show{display:flex;flex-direction:column;min-height:0}
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:1.1rem 1.2rem}.screen>.wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;box-shadow:0 2px 14px rgba(16,32,56,.07)}
+h1,h2,h3{margin:.2rem 0 .7rem;color:var(--accent)}h1{font-size:1.55rem}h2{font-size:1.22rem}h3{font-size:1.02rem}
+p{margin:.5rem 0}.small{font-size:.85rem}.muted{color:var(--muted)}.center{text-align:center}.brand{font-weight:800;letter-spacing:.4px;color:var(--accent)}
+.tag{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:.12rem .6rem;font-size:.74rem;color:var(--muted);margin-right:.35rem}
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}.hero-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.8rem;text-align:center}.hero-stat strong{display:block;color:var(--accent);font-size:1.35rem}
+.notice{border-left:4px solid var(--accent);background:var(--surface2);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}.disclaimer{font-size:.78rem;color:var(--muted);margin-top:1rem}
+#exam.screen.show>.wrap{overflow:hidden;display:flex;flex-direction:column}
+.toolbar{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--border);padding:.45rem .9rem;display:flex;gap:.4rem;align-items:center;flex-wrap:nowrap;min-width:0}
+.toolbar .brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}.toolbar .sp,.navbar .sp{flex:1}
+.clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.02rem;letter-spacing:.5px;padding:.3rem .7rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);white-space:nowrap}.clock.warn{color:#fff;background:var(--warn);border-color:var(--warn)}.clock.low{color:#fff;background:var(--bad);border-color:var(--bad)}
+#qpane{flex:1 1 auto;min-height:0;overflow:hidden;padding:.85rem 0 1rem;display:flex;flex-direction:column}
+.qcard{flex:1 1 auto;min-height:0;overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.2rem 1.4rem 1.4rem;box-shadow:0 1px 3px rgba(16,32,56,.06)}
+.qcard>*{max-width:940px;margin-left:auto;margin-right:auto}.qnum{font-weight:700;color:var(--muted);font-size:.82rem;margin:0 0 .55rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.flagtag{background:var(--warn);color:#fff;border-radius:5px;padding:.05rem .45rem;font-size:.7rem;font-weight:700}.stem{font-size:1.04rem;margin:.15rem 0 .95rem;line-height:1.65}
+.opt{border:1px solid var(--border2);background:var(--surface);border-radius:10px;padding:.68rem .85rem;margin-bottom:.55rem;cursor:pointer;display:flex;gap:.7rem;align-items:flex-start;transition:.12s}
+.opt:hover{border-color:var(--accent2);background:var(--surface2)}.opt.sel{border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .ltr{flex:0 0 1.55rem;height:1.55rem;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:var(--muted);background:var(--surface)}.opt.sel .ltr{background:var(--accent);border-color:var(--accent);color:#fff}
+.navbar{flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);padding:.55rem 1rem;display:flex;gap:.45rem;align-items:center;flex-wrap:nowrap;min-width:0}.qcounter{font-size:.78rem;font-weight:700;color:var(--muted);padding:0 .5rem;white-space:nowrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(8,16,28,.55);z-index:60;align-items:center;justify-content:center;padding:1rem}.modal.show{display:flex}.modal .box{background:var(--surface);border-radius:14px;padding:1.2rem;max-width:760px;width:100%;max-height:86vh;overflow:auto;border:1px solid var(--border2)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.35rem;margin-top:.6rem}.navcell{border:1px solid var(--border2);border-radius:7px;padding:.4rem 0;text-align:center;font-size:.78rem;cursor:pointer;background:var(--surface2)}.navcell.ans{background:var(--accent);color:#fff;border-color:var(--accent)}.navcell.flag{outline:2px solid var(--warn)}
+.scoreBig{font-size:3rem;font-weight:800;color:var(--accent);line-height:1}.hero{font-size:1.2rem;font-weight:800;margin:.5rem 0;padding:.35rem 1rem;border-radius:999px;display:inline-block}.hero.pass{background:var(--ok);color:#fff}.hero.mid{background:var(--warn);color:#fff}.hero.low{background:var(--bad);color:#fff}
+.statrow{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0}.statbox{flex:1 1 120px;border:1px solid var(--border2);border-radius:10px;padding:.65rem .8rem;text-align:center;background:var(--surface2)}.statv{font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1.1}.statl{font-size:.78rem;color:var(--muted)}
+.bar{height:12px;border-radius:6px;background:var(--surface2);overflow:hidden;border:1px solid var(--border2);margin:.5rem 0}.bar>span{display:block;height:100%;background:var(--accent)}
+.result-message{margin:1rem 0;padding:1rem;border-radius:10px;border:1px solid var(--border2);background:var(--surface2)}.cta{border:2px solid var(--accent);border-radius:12px;padding:1rem 1.1rem;margin:1rem 0;background:var(--surface2)}.cta-buttons{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.revitem{border:1px solid var(--border2);border-radius:10px;padding:.8rem .95rem;margin-bottom:.7rem;background:var(--surface)}.revitem.correct{border-left:5px solid var(--ok)}.revitem.incorrect{border-left:5px solid var(--bad)}.revitem.skipped{border-left:5px solid var(--muted)}
+.answerline,.explain{font-size:.88rem;margin:.25rem 0}.trapbox{margin-top:.55rem;padding:.65rem .75rem;border-radius:8px;background:var(--surface2);border-left:4px solid var(--gold);font-size:.86rem}
+.footer{flex:0 0 auto;text-align:center;font-size:.72rem;color:var(--muted);padding:.35rem 1rem;border-top:1px solid var(--border);background:var(--surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:720px){.hero-grid{grid-template-columns:repeat(2,1fr)}.toolbar .brand{max-width:35vw}.toolbar .tag{display:none}.navbar{gap:.25rem;padding:.45rem}.navbar button{padding:.42rem .55rem;font-size:.82rem}.qcounter{padding:0 .15rem}}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="intro" class="screen show"><div class="wrap"><div class="card" style="max-width:820px;margin:4vh auto">
+<div class="brand">PMI EXAM SIMULATOR</div>
+<h1>Quality Management</h1>
+<p class="muted">10 exam-style PMI trap questions focused on cost of quality, root cause analysis, acceptance criteria, control charts, quality assurance, Definition of Done, defect prevention, and continuous improvement.</p>
+
+<div class="hero-grid">
+<div class="hero-stat"><strong>10</strong><span class="small muted">Questions</span></div>
+<div class="hero-stat"><strong>13:20</strong><span class="small muted">Exam Time</span></div>
+<div class="hero-stat"><strong>80%</strong><span class="small muted">Target Score</span></div>
+<div class="hero-stat"><strong>1</strong><span class="small muted">Best Answer</span></div>
+</div>
+
+<div class="notice small">
+<strong>How to approach Quality traps:</strong>
+Prevent defects rather than inspect quality in later. Clarify quality expectations before work proceeds.
+Use the right quality tool for the purpose. Distinguish process-focused Manage Quality from deliverable-focused Control Quality.
+A product increment is not complete until it meets the agreed Definition of Done.
+</div>
+
+<p class="small"><strong>Exam behavior:</strong> answer all 10 questions before viewing explanations. You may flag questions and return to them before submitting.</p>
+<button class="btn-primary" onclick="startExam()">Start PMI Exam Simulator</button>
+<button onclick="toggleTheme()">Theme</button>
+
+<p class="disclaimer">
+Independent practice material. This simulator is not affiliated with, sponsored by, or endorsed by PMI.
+The questions are original practice items and do not reproduce live PMI examination content.
+</p>
+</div></div></section>
+
+<section id="exam" class="screen">
+<div class="toolbar"><span class="brand small">PMI EXAM SIMULATOR</span><span class="tag">Quality Management</span><span class="sp"></span><button onclick="toggleTheme()">Theme</button><span id="clock" class="clock">13:20</span></div>
+<div class="wrap"><div id="qpane"></div></div>
+<div class="navbar"><span id="qCounter" class="qcounter"></span><button id="flagBtn" onclick="toggleFlag()">Flag</button><button onclick="openNavigator()">Navigator</button><span class="sp"></span><button id="prevBtn" onclick="prevQ()">Previous</button><button id="nextBtn" class="btn-primary" onclick="nextQ()">Next</button><button class="btn-danger" onclick="openSubmitModal()">Submit</button></div>
+</section>
+
+<section id="results" class="screen"><div class="wrap"><div class="card" id="resultsBody"></div></div></section>
+</div>
+
+<div class="footer">PMI Exam Simulator · Independent PMP® practice material · Not official PMI examination content</div>
+
+<div id="navModal" class="modal"><div class="box"><h3>Question Navigator</h3><p class="small muted">Blue = answered · gold outline = flagged</p><div id="navGrid" class="navgrid"></div><div style="margin-top:.9rem"><button class="btn-primary" onclick="closeNavigator()">Close</button></div></div></div>
+
+<div id="submitModal" class="modal"><div class="box" style="max-width:520px"><h3>Submit your simulator?</h3><p class="small">You will not be able to change answers after submission.</p><div id="submitSummary" class="small muted"></div><div style="margin-top:.9rem"><button class="btn-danger" onclick="finishExam(false)">Yes, submit</button><button onclick="closeSubmitModal()">Go back</button></div></div></div>
+
+<script>
+const PREMIUM_URL="YOUR_PREMIUM_PMP_PROGRAM_LINK_HERE";
+const FREE_COURSE_URL="YOUR_SKOOL_FREE_COURSE_LINK_HERE";
+
+const QUESTIONS=[
+{
+id:"qual_01",
+scenario:"Your team is planning the quality approach for a new billing system. The sponsor asks: which of the following spending items is a PREVENTION cost of quality?",
+choices:[
+"A. Paying a specialist to inspect each finished module before release",
+"B. Fixing a defective module found by the internal test team",
+"C. Training the developers on the coding standard before work starts",
+"D. Refunding customers after a billing error reaches production"
+],
+correct:"C",
+explanation:"Training the developers before work begins is a prevention cost because it is intended to stop defects from being introduced. Inspection is an appraisal cost, fixing internally discovered defects is an internal failure cost, and customer refunds are an external failure cost.",
+trap:"The trap is confusing appraisal activities such as inspection with prevention. Prevention acts before defects are created."
+},
+{
+id:"qual_02",
+scenario:"The same type of data-entry defect keeps appearing in every release of a hybrid project. The team wants to understand WHY it keeps happening. Which tool should the project manager use?",
+choices:[
+"A. Control chart",
+"B. Pareto chart (80/20 chart)",
+"C. Check sheet (tally sheet)",
+"D. Fishbone diagram"
+],
+correct:"D",
+explanation:"A fishbone, or cause-and-effect, diagram is used to explore possible root causes of a recurring problem. A Pareto chart helps identify which causes contribute most, while a control chart evaluates process behavior over time.",
+trap:"The word WHY points toward root cause analysis. Pareto tells you which causes matter most, not why they occur."
+},
+{
+id:"qual_03",
+scenario:"During a sprint, a developer tells you the acceptance criteria for a story are vague, so the testers are checking the story against their own interpretation. What should the project manager do FIRST?",
+choices:[
+"A. Ask the product owner to clarify the acceptance criteria with the whole team",
+"B. Add the vague criteria to the sprint retrospective as a process issue",
+"C. Ask the testers to write their interpretation down as the standard for the story",
+"D. Move the story back to the product backlog until the next sprint"
+],
+correct:"A",
+explanation:"The ambiguity should be resolved immediately with the product owner and team so everyone has a shared understanding of what acceptance means. Waiting for the retrospective does not solve the current quality risk.",
+trap:"The trap is postponing clarification. When acceptance criteria are unclear, establish shared understanding before continuing the work."
+},
+{
+id:"qual_04",
+scenario:"A control chart for your invoice-processing time shows the last seven data points all above the mean, although every point is inside the control limits. What does this tell the project manager?",
+choices:[
+"A. The process is stable and needs no action at this time",
+"B. The process needs a special-cause investigation",
+"C. The specification limits need to be widened",
+"D. The customer's tolerance has been exceeded"
+],
+correct:"B",
+explanation:"A sustained run of points on one side of the mean is a non-random pattern that can signal special-cause variation even when all points remain within the control limits. The process should be investigated.",
+trap:"The trap is assuming that being inside control limits automatically means the process is stable. Patterns and runs also matter."
+},
+{
+id:"qual_05",
+scenario:"Your predictive project is two days behind. The sponsor asks you to skip the planned peer review of the design so the team can start building, saying any defects will be found later in user acceptance testing (UAT). What should the project manager do FIRST?",
+choices:[
+"A. Run the peer review in parallel with the first week of building",
+"B. Escalate the request to the project management office (PMO) as a quality violation",
+"C. Skip the review and record the decision as an accepted risk in the register",
+"D. Show the sponsor the cost of fixing defects in UAT versus in review"
+],
+correct:"D",
+explanation:"The project manager should first help the sponsor understand the consequence of removing a planned prevention or early-detection activity. Defects generally become more expensive to correct later in the lifecycle.",
+trap:"The trap is either obeying immediately or escalating immediately. First make the quality and cost impact visible so an informed decision can be made."
+},
+{
+id:"qual_06",
+scenario:"The project manager checks whether the team is actually following the agreed testing process, reviewing the process itself rather than the finished product. Which quality activity is this an example of?",
+choices:[
+"A. Control quality",
+"B. Manage quality",
+"C. Plan quality management",
+"D. Continuous improvement"
+],
+correct:"B",
+explanation:"Manage Quality focuses on the quality processes being used and whether they are appropriate and followed. Control Quality focuses more directly on inspecting, measuring, and verifying actual deliverables and results.",
+trap:"The trap is confusing process assurance with product inspection. Process-focused work belongs to Manage Quality."
+},
+{
+id:"qual_07",
+scenario:"An agile team reports a story as complete, but it has not passed the security scan that the team's Definition of Done requires. The product owner wants to accept the story anyway so the sprint review shows progress. What should the project manager do?",
+choices:[
+"A. Accept the story now and run the security scan in the next sprint",
+"B. Ask the team to remove the security scan from the Definition of Done for this sprint",
+"C. Keep the story incomplete until it meets the Definition of Done",
+"D. Escalate the disagreement to the security team lead"
+],
+correct:"C",
+explanation:"A story is not complete until it satisfies the team's agreed Definition of Done. Bypassing a required quality check hides unfinished work and undermines transparency.",
+trap:"The trap is prioritizing visible progress over the agreed quality standard. Done means all Definition of Done conditions are satisfied."
+},
+{
+id:"qual_08",
+scenario:"Two weeks of defect data have already been analyzed on your hybrid project. A Pareto chart shows that two of nine causes (data-entry validation and application programming interface (API) timeouts) produce 80 percent of the defects, root cause analysis on both is finished, and the team has a fix plan ready. The sponsor asks: what should the team do NEXT?",
+choices:[
+"A. Implement the fixes for the two top causes and re-measure defects",
+"B. Run a fishbone analysis on the remaining seven causes to be thorough",
+"C. Collect another two weeks of data to confirm the pattern",
+"D. Record the defect data in the lessons-learned register and close the item"
+],
+correct:"A",
+explanation:"The team has already identified the vital few causes, completed root cause analysis, and prepared corrective actions. The next logical step is to implement the fixes and then measure whether they reduce the defects.",
+trap:"The trap is continuing analysis after enough information exists to act. PMI-style questions often reward moving from analysis to improvement when the cause and response are already known."
+},
+{
+id:"qual_09",
+scenario:"During quality control, the team finds that a delivered component meets the documented specification but users still consider it difficult to use. What should the project manager do BEST?",
+choices:[
+"A. Close the concern because the documented specification was met",
+"B. Engage the relevant stakeholders to understand the usability gap and evaluate whether the requirements or acceptance criteria need to change",
+"C. Ask the quality team to increase inspection frequency on the same specification",
+"D. Replace the component immediately without evaluating the impact"
+],
+correct:"B",
+explanation:"Conformance to documented requirements does not automatically guarantee fitness for use or stakeholder satisfaction. The project manager should understand the gap and determine whether requirements, acceptance criteria, or the solution need adjustment through the appropriate process.",
+trap:"The trap is assuming quality is only conformance to specification. Stakeholder expectations and fitness for use still matter."
+},
+{
+id:"qual_10",
+scenario:"A team has introduced an automated test that detects a common defect before code is merged. After several iterations, the defect rate drops significantly. What should the project manager do NEXT?",
+choices:[
+"A. Remove the test because the defect rate is now low",
+"B. Standardize the successful practice where appropriate and continue monitoring its effectiveness",
+"C. Stop collecting quality data because the problem is solved",
+"D. Move responsibility for the test entirely to the customer"
+],
+correct:"B",
+explanation:"When an improvement proves effective, the team should institutionalize or standardize the practice where appropriate and continue measuring results to sustain continuous improvement.",
+trap:"The trap is treating improvement as a one-time fix. Quality management includes sustaining successful process improvements and monitoring performance."
+}
+];
+
+let current=0,answers=Array(QUESTIONS.length).fill(null),flags=Array(QUESTIONS.length).fill(false),secondsLeft=800,timerHandle=null,startedAt=null;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("show"));document.getElementById(id).classList.add("show")}
+function toggleTheme(){const r=document.documentElement;r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark")}
+function startExam(){startedAt=Date.now();showScreen("exam");renderQuestion();renderClock();timerHandle=setInterval(()=>{secondsLeft--;renderClock();if(secondsLeft<=0){clearInterval(timerHandle);finishExam(true)}},1000)}
+function renderClock(){const e=document.getElementById("clock"),m=Math.floor(Math.max(0,secondsLeft)/60),s=Math.max(0,secondsLeft)%60;e.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");e.classList.toggle("warn",secondsLeft<=180&&secondsLeft>60);e.classList.toggle("low",secondsLeft<=60)}
+function renderQuestion(){const q=QUESTIONS[current],selected=answers[current],flagHtml=flags[current]?'<span class="flagtag">FLAGGED</span>':"";const opts=q.choices.map(c=>{const l=c.charAt(0),t=c.replace(/^[A-D]\.\s*/,"");return `<div class="opt ${selected===l?"sel":""}" onclick="selectAnswer('${l}')"><div class="ltr">${l}</div><div>${esc(t)}</div></div>`}).join("");document.getElementById("qpane").innerHTML=`<div class="qcard"><div class="qnum">Question ${current+1} of ${QUESTIONS.length} ${flagHtml}</div><div class="stem">${esc(q.scenario)}</div><div>${opts}</div></div>`;document.getElementById("qCounter").textContent=`${current+1}/${QUESTIONS.length}`;document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===QUESTIONS.length-1;document.getElementById("flagBtn").textContent=flags[current]?"Unflag":"Flag"}
+function selectAnswer(l){answers[current]=l;renderQuestion()}function toggleFlag(){flags[current]=!flags[current];renderQuestion()}function nextQ(){if(current<QUESTIONS.length-1){current++;renderQuestion()}}function prevQ(){if(current>0){current--;renderQuestion()}}
+function openNavigator(){document.getElementById("navGrid").innerHTML=QUESTIONS.map((q,i)=>`<div class="navcell ${answers[i]?"ans":""} ${flags[i]?"flag":""}" onclick="jumpTo(${i})">${i+1}</div>`).join("");document.getElementById("navModal").classList.add("show")}function closeNavigator(){document.getElementById("navModal").classList.remove("show")}function jumpTo(i){current=i;closeNavigator();renderQuestion()}
+function openSubmitModal(){const a=answers.filter(Boolean).length,f=flags.filter(Boolean).length;document.getElementById("submitSummary").innerHTML=`Answered: <strong>${a}/${QUESTIONS.length}</strong><br>Flagged: <strong>${f}</strong><br>Unanswered: <strong>${QUESTIONS.length-a}</strong>`;document.getElementById("submitModal").classList.add("show")}function closeSubmitModal(){document.getElementById("submitModal").classList.remove("show")}
+function finishExam(timeExpired){
+closeSubmitModal();if(timerHandle)clearInterval(timerHandle);
+const score=QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.correct?1:0),0),skipped=answers.filter(a=>!a).length,wrong=QUESTIONS.length-score-skipped,pct=score*10,elapsed=fmt(startedAt?Math.round((Date.now()-startedAt)/1000):0);
+let cls,band,msg,cta;
+if(score>=8){
+cls="pass";band="Strong Quality Understanding";
+msg="You have a strong grasp of prevention versus failure costs, root cause analysis, control charts, acceptance criteria, Manage Quality versus Control Quality, Definition of Done, and continuous improvement. Review any missed traps before moving on.";
+cta=`<div class="cta"><h3>Ready for the next challenge?</h3><p class="small">Continue your free PMP pathway, or explore the Premium PMP Preparation Program for deeper scenario practice, mock exams, weak-area tracking, and structured coaching.</p><div class="cta-buttons">${linkBtn(FREE_COURSE_URL,"Return to Free PMP Course","btn-primary")}${linkBtn(PREMIUM_URL,"Explore Premium PMP Program","")}</div></div>`;
+}else if(score>=6){
+cls="mid";band="Quality Knowledge Gaps Identified";
+msg="You understand the fundamentals, but some quality traps are still blending together. Review the distinctions between prevention, appraisal, failure costs, process assurance, product inspection, root cause tools, and agile Definition of Done.";
+cta=`<div class="cta"><h3>You are close — strengthen the gaps now</h3><p class="small">Join the <strong>Premium PMP Preparation Program</strong> for structured guidance, PMP mindset training, detailed answer reasoning, topic practice, and full mock exams.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Review Free Course","")}</div></div>`;
+}else{
+cls="low";band="Quality Management Needs Attention";
+msg="The result shows that quality planning, quality assurance, control quality, quality tools, and agile completion criteria need more review. Focus on preventing defects early and choosing the quality activity or tool that matches the situation.";
+cta=`<div class="cta"><h3>Strengthen the Quality mindset</h3><p class="small">The Premium PMP Preparation Program is designed to help you distinguish tempting distractors and apply quality logic correctly in situational questions.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Rewatch the Free Lesson","")}</div></div>`;
+}
+const review=QUESTIONS.map((q,i)=>{const a=answers[i],r=!a?"skipped":a===q.correct?"correct":"incorrect";return `<div class="revitem ${r}"><h3>Question ${i+1}</h3><p class="small"><strong>${esc(q.scenario)}</strong></p><div class="answerline"><strong>Your answer:</strong> ${esc(a?choice(q,a):"Skipped")}</div><div class="answerline"><strong>Correct answer:</strong> ${esc(choice(q,q.correct))}</div><div class="explain"><strong>Why:</strong> ${esc(q.explanation)}</div><div class="trapbox"><strong>PMI Trap:</strong> ${esc(q.trap)}</div></div>`}).join("");
+document.getElementById("resultsBody").innerHTML=`<div class="center"><div class="brand">PMI EXAM SIMULATOR</div><h1>Quality Management</h1>${timeExpired?'<p class="small" style="color:var(--bad);font-weight:700">Time expired — submitted automatically.</p>':""}<div class="scoreBig">${score}/10</div><div class="hero ${cls}">${band}</div><div class="bar"><span style="width:${pct}%"></span></div><p class="small muted">${pct}% · Target score 80%</p></div>
+<div class="statrow"><div class="statbox"><div class="statv">${score}</div><div class="statl">Correct</div></div><div class="statbox"><div class="statv">${wrong}</div><div class="statl">Incorrect</div></div><div class="statbox"><div class="statv">${skipped}</div><div class="statl">Skipped</div></div><div class="statbox"><div class="statv">${elapsed}</div><div class="statl">Time Used</div></div></div>
+<div class="result-message">${esc(msg)}</div>${cta}
+<h2>Answer Review &amp; PMI Traps</h2><p class="small muted">Study the trap explanation even when you answered correctly. The goal is to understand why the distractors were tempting.</p>${review}
+<div class="center" style="margin-top:1rem"><button class="btn-primary" onclick="restartExam()">Retake Simulator</button><button onclick="toggleTheme()">Theme</button></div>`;
+showScreen("results");
+}
+function restartExam(){current=0;answers=Array(QUESTIONS.length).fill(null);flags=Array(QUESTIONS.length).fill(false);secondsLeft=800;startedAt=null;showScreen("intro")}
+function choice(q,l){return q.choices.find(c=>c.startsWith(l+"."))||l}
+function fmt(s){const m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,"0")}`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function linkBtn(url,label,cls){if(!url||url.includes("YOUR_"))return `<button class="${cls}" onclick="alert('Add your Skool link in the HTML: PREMIUM_URL / FREE_COURSE_URL near the top of the script.')">${esc(label)}</button>`;return `<button class="${cls}" onclick="window.open('${esc(url)}','_blank','noopener')">${esc(label)}</button>`}
+</script>
+</body>
+</html>
