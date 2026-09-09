@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent PMP practice simulator for Agile project management.">
+<title>PMI Exam Simulator — Agile</title>
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--surface2:#f6f9fc;--text:#16202e;--muted:#5b6b80;--accent:#12386b;--accent2:#1c5fa8;--border:#dde5ee;--border2:#c6d3e2;--ok:#1a7f4b;--bad:#b3261e;--warn:#a8700a;--gold:#b8860b}
+[data-theme="dark"]{--bg:#0e1520;--surface:#16202e;--surface2:#1b2635;--text:#e7edf5;--muted:#9fb0c4;--accent:#5aa2e8;--accent2:#7fbcf5;--border:#28374a;--border2:#3a4c63;--ok:#4ecf8b;--bad:#ff6f61;--warn:#e0b44a;--gold:#d9ae4a}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;overflow:hidden;display:flex;flex-direction:column;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);padding:.5rem .9rem}
+button:hover{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
+#app{flex:1 1 auto;min-height:0;display:flex}.screen{display:none;width:100%;min-width:0}.screen.show{display:flex;flex-direction:column;min-height:0}
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:1.1rem 1.2rem}.screen>.wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;box-shadow:0 2px 14px rgba(16,32,56,.07)}
+h1,h2,h3{margin:.2rem 0 .7rem;color:var(--accent)}h1{font-size:1.55rem}h2{font-size:1.22rem}h3{font-size:1.02rem}
+p{margin:.5rem 0}.small{font-size:.85rem}.muted{color:var(--muted)}.center{text-align:center}.brand{font-weight:800;letter-spacing:.4px;color:var(--accent)}
+.tag{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:.12rem .6rem;font-size:.74rem;color:var(--muted);margin-right:.35rem}
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}.hero-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.8rem;text-align:center}.hero-stat strong{display:block;color:var(--accent);font-size:1.35rem}
+.notice{border-left:4px solid var(--accent);background:var(--surface2);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}.disclaimer{font-size:.78rem;color:var(--muted);margin-top:1rem}
+#exam.screen.show>.wrap{overflow:hidden;display:flex;flex-direction:column}
+.toolbar{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--border);padding:.45rem .9rem;display:flex;gap:.4rem;align-items:center;flex-wrap:nowrap;min-width:0}
+.toolbar .brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}.toolbar .sp,.navbar .sp{flex:1}
+.clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.02rem;letter-spacing:.5px;padding:.3rem .7rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);white-space:nowrap}.clock.warn{color:#fff;background:var(--warn);border-color:var(--warn)}.clock.low{color:#fff;background:var(--bad);border-color:var(--bad)}
+#qpane{flex:1 1 auto;min-height:0;overflow:hidden;padding:.85rem 0 1rem;display:flex;flex-direction:column}
+.qcard{flex:1 1 auto;min-height:0;overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.2rem 1.4rem 1.4rem;box-shadow:0 1px 3px rgba(16,32,56,.06)}
+.qcard>*{max-width:940px;margin-left:auto;margin-right:auto}.qnum{font-weight:700;color:var(--muted);font-size:.82rem;margin:0 0 .55rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.flagtag{background:var(--warn);color:#fff;border-radius:5px;padding:.05rem .45rem;font-size:.7rem;font-weight:700}.stem{font-size:1.04rem;margin:.15rem 0 .95rem;line-height:1.65}
+.opt{border:1px solid var(--border2);background:var(--surface);border-radius:10px;padding:.68rem .85rem;margin-bottom:.55rem;cursor:pointer;display:flex;gap:.7rem;align-items:flex-start;transition:.12s}
+.opt:hover{border-color:var(--accent2);background:var(--surface2)}.opt.sel{border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .ltr{flex:0 0 1.55rem;height:1.55rem;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:var(--muted);background:var(--surface)}.opt.sel .ltr{background:var(--accent);border-color:var(--accent);color:#fff}
+.navbar{flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);padding:.55rem 1rem;display:flex;gap:.45rem;align-items:center;flex-wrap:nowrap;min-width:0}.qcounter{font-size:.78rem;font-weight:700;color:var(--muted);padding:0 .5rem;white-space:nowrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(8,16,28,.55);z-index:60;align-items:center;justify-content:center;padding:1rem}.modal.show{display:flex}.modal .box{background:var(--surface);border-radius:14px;padding:1.2rem;max-width:760px;width:100%;max-height:86vh;overflow:auto;border:1px solid var(--border2)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.35rem;margin-top:.6rem}.navcell{border:1px solid var(--border2);border-radius:7px;padding:.4rem 0;text-align:center;font-size:.78rem;cursor:pointer;background:var(--surface2)}.navcell.ans{background:var(--accent);color:#fff;border-color:var(--accent)}.navcell.flag{outline:2px solid var(--warn)}
+.scoreBig{font-size:3rem;font-weight:800;color:var(--accent);line-height:1}.hero{font-size:1.2rem;font-weight:800;margin:.5rem 0;padding:.35rem 1rem;border-radius:999px;display:inline-block}.hero.pass{background:var(--ok);color:#fff}.hero.mid{background:var(--warn);color:#fff}.hero.low{background:var(--bad);color:#fff}
+.statrow{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0}.statbox{flex:1 1 120px;border:1px solid var(--border2);border-radius:10px;padding:.65rem .8rem;text-align:center;background:var(--surface2)}.statv{font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1.1}.statl{font-size:.78rem;color:var(--muted)}
+.bar{height:12px;border-radius:6px;background:var(--surface2);overflow:hidden;border:1px solid var(--border2);margin:.5rem 0}.bar>span{display:block;height:100%;background:var(--accent)}
+.result-message{margin:1rem 0;padding:1rem;border-radius:10px;border:1px solid var(--border2);background:var(--surface2)}.cta{border:2px solid var(--accent);border-radius:12px;padding:1rem 1.1rem;margin:1rem 0;background:var(--surface2)}.cta-buttons{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.revitem{border:1px solid var(--border2);border-radius:10px;padding:.8rem .95rem;margin-bottom:.7rem;background:var(--surface)}.revitem.correct{border-left:5px solid var(--ok)}.revitem.incorrect{border-left:5px solid var(--bad)}.revitem.skipped{border-left:5px solid var(--muted)}
+.answerline,.explain{font-size:.88rem;margin:.25rem 0}.trapbox{margin-top:.55rem;padding:.65rem .75rem;border-radius:8px;background:var(--surface2);border-left:4px solid var(--gold);font-size:.86rem}
+.footer{flex:0 0 auto;text-align:center;font-size:.72rem;color:var(--muted);padding:.35rem 1rem;border-top:1px solid var(--border);background:var(--surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:720px){.hero-grid{grid-template-columns:repeat(2,1fr)}.toolbar .brand{max-width:35vw}.toolbar .tag{display:none}.navbar{gap:.25rem;padding:.45rem}.navbar button{padding:.42rem .55rem;font-size:.82rem}.qcounter{padding:0 .15rem}}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="intro" class="screen show"><div class="wrap"><div class="card" style="max-width:820px;margin:4vh auto">
+<div class="brand">PMI EXAM SIMULATOR</div>
+<h1>Agile</h1>
+<p class="muted">30 exam-style PMI trap questions focused on agile mindset, adaptive planning, value delivery, product backlog management, team empowerment, feedback, flow, quality, and continuous improvement.</p>
+
+<div class="hero-grid">
+<div class="hero-stat"><strong>30</strong><span class="small muted">Questions</span></div>
+<div class="hero-stat"><strong>40:00</strong><span class="small muted">Exam Time</span></div>
+<div class="hero-stat"><strong>80%</strong><span class="small muted">Target Score</span></div>
+<div class="hero-stat"><strong>1</strong><span class="small muted">Best Answer</span></div>
+</div>
+
+<div class="notice small">
+<strong>How to approach agile traps:</strong>
+Think value before activity. Collaborate before escalating. Use feedback and empirical evidence before making assumptions.
+Protect the iteration goal without blocking learning. Empower the team, make work visible, limit work in progress, and adapt plans as new information emerges.
+</div>
+
+<p class="small"><strong>Exam behavior:</strong> answer all 30 questions before viewing explanations. You may flag questions and return to them before submitting.</p>
+<button class="btn-primary" onclick="startExam()">Start PMI Exam Simulator</button>
+<button onclick="toggleTheme()">Theme</button>
+
+<p class="disclaimer">
+Independent practice material. This simulator is not affiliated with, sponsored by, or endorsed by PMI.
+The questions are original practice items and do not reproduce live PMI examination content.
+</p>
+</div></div></section>
+
+<section id="exam" class="screen">
+<div class="toolbar"><span class="brand small">PMI EXAM SIMULATOR</span><span class="tag">Agile</span><span class="sp"></span><button onclick="toggleTheme()">Theme</button><span id="clock" class="clock">40:00</span></div>
+<div class="wrap"><div id="qpane"></div></div>
+<div class="navbar"><span id="qCounter" class="qcounter"></span><button id="flagBtn" onclick="toggleFlag()">Flag</button><button onclick="openNavigator()">Navigator</button><span class="sp"></span><button id="prevBtn" onclick="prevQ()">Previous</button><button id="nextBtn" class="btn-primary" onclick="nextQ()">Next</button><button class="btn-danger" onclick="openSubmitModal()">Submit</button></div>
+</section>
+
+<section id="results" class="screen"><div class="wrap"><div class="card" id="resultsBody"></div></div></section>
+</div>
+
+<div class="footer">PMI Exam Simulator · Independent PMP® practice material · Not official PMI examination content</div>
+
+<div id="navModal" class="modal"><div class="box"><h3>Question Navigator</h3><p class="small muted">Blue = answered · gold outline = flagged</p><div id="navGrid" class="navgrid"></div><div style="margin-top:.9rem"><button class="btn-primary" onclick="closeNavigator()">Close</button></div></div></div>
+
+<div id="submitModal" class="modal"><div class="box" style="max-width:520px"><h3>Submit your simulator?</h3><p class="small">You will not be able to change answers after submission.</p><div id="submitSummary" class="small muted"></div><div style="margin-top:.9rem"><button class="btn-danger" onclick="finishExam(false)">Yes, submit</button><button onclick="closeSubmitModal()">Go back</button></div></div></div>
+
+<script>
+const PREMIUM_URL="YOUR_PREMIUM_PMP_PROGRAM_LINK_HERE";
+const FREE_COURSE_URL="YOUR_SKOOL_FREE_COURSE_LINK_HERE";
+
+const QUESTIONS=[
+  {
+    "id": "ag_01",
+    "scenario": "A project has high uncertainty, evolving customer needs, and a strong need to deliver usable value early. The sponsor asks the project manager to recommend a delivery approach. What should the project manager recommend?",
+    "choices": [
+      "A. Use a predictive approach because the sponsor needs governance visibility.",
+      "B. Use an adaptive/agile approach with short feedback cycles and incremental delivery.",
+      "C. Freeze the requirements first, then select the delivery approach.",
+      "D. Use a predictive approach until all major risks have been eliminated."
+    ],
+    "correct": "B",
+    "explanation": "High uncertainty, evolving requirements, and a need for early value are strong indicators for an adaptive/agile approach. Short cycles allow the team to learn from feedback and adjust priorities as conditions change.",
+    "trap": "The trap is assuming governance requires predictive delivery. Governance can still exist while delivery remains adaptive."
+  },
+  {
+    "id": "ag_02",
+    "scenario": "During an iteration, the product owner repeatedly asks the team to start newly discovered urgent stories. The team is becoming distracted and the iteration goal is at risk. What should the project manager or agile leader do FIRST?",
+    "choices": [
+      "A. Tell the team to accept every new request because agile welcomes change.",
+      "B. Extend the iteration so the new work can be completed.",
+      "C. Facilitate a discussion with the product owner and team to protect the iteration goal and place nonessential new work in the backlog for reprioritization.",
+      "D. Escalate the product owner's behavior to the sponsor."
+    ],
+    "correct": "C",
+    "explanation": "Agile welcomes changing needs, but that does not mean uncontrolled work should enter an iteration. The team and product owner should protect the iteration goal and transparently reprioritize new work in the backlog, renegotiating current scope only when necessary.",
+    "trap": "Welcoming change is not the same as allowing constant interruption."
+  },
+  {
+    "id": "ag_03",
+    "scenario": "At an iteration review, a key customer says a completed feature technically meets the acceptance criteria but does not solve the business problem as expected. What should the team do NEXT?",
+    "choices": [
+      "A. Explore the feedback with the customer and update or reprioritize the backlog based on the learning.",
+      "B. Reject the feedback because the accepted criteria were met.",
+      "C. Ask the sponsor to decide whether the customer is correct.",
+      "D. Record the concern as a lesson learned for the end of the project."
+    ],
+    "correct": "A",
+    "explanation": "An iteration review is a feedback and learning event. Even when stated acceptance criteria were met, new information about value should be used to refine the product backlog and future delivery decisions.",
+    "trap": "The trap is confusing conformance to acceptance criteria with delivery of business value."
+  },
+  {
+    "id": "ag_04",
+    "scenario": "An agile team misses an iteration goal because an external dependency blocked testing for several days. A manager suggests making all future iterations longer. What should the agile leader do FIRST?",
+    "choices": [
+      "A. Increase the iteration length immediately so similar delays can be absorbed.",
+      "B. Add more developers to compensate for the external dependency.",
+      "C. Reduce the amount of testing performed during each iteration.",
+      "D. Work with the team to identify and remove or reduce the dependency and its underlying impediment."
+    ],
+    "correct": "D",
+    "explanation": "The first response should be to understand and address the actual impediment. Changing iteration length without addressing the dependency masks the root cause rather than improving flow.",
+    "trap": "Do not change cadence simply to absorb dysfunction."
+  },
+  {
+    "id": "ag_05",
+    "scenario": "A sponsor asks for a fully detailed 12-month scope baseline before approving an agile project. Requirements are expected to evolve substantially. What should the project manager do?",
+    "choices": [
+      "A. Create a detailed baseline anyway and prevent changes after approval.",
+      "B. Explain adaptive planning and provide an appropriate roadmap or release forecast while detailing near-term work progressively.",
+      "C. Refuse to provide any long-term view because agile projects do not plan ahead.",
+      "D. Convert the entire project to predictive delivery."
+    ],
+    "correct": "B",
+    "explanation": "Agile still plans, but at different levels of detail. A roadmap or release forecast can provide strategic visibility while near-term backlog items are refined in greater detail as learning occurs.",
+    "trap": "The two traps are 'no planning in agile' and 'everything must be fixed up front.'"
+  },
+  {
+    "id": "ag_06",
+    "scenario": "A senior developer has started assigning tasks to every team member and approving all technical decisions. Other team members have stopped volunteering ideas. What should the agile leader do?",
+    "choices": [
+      "A. Formally appoint the senior developer as team manager.",
+      "B. Ask the product owner to assign the technical tasks instead.",
+      "C. Coach the team toward self-organization and shared ownership of how the work is performed.",
+      "D. Leave the arrangement unchanged because the senior developer is the most experienced."
+    ],
+    "correct": "C",
+    "explanation": "Agile teams are empowered to determine how work is accomplished. The agile leader supports self-management, collaboration, and shared ownership rather than reinforcing command-and-control task assignment.",
+    "trap": "Expertise does not justify removing team autonomy."
+  },
+  {
+    "id": "ag_07",
+    "scenario": "Several defects are found after stories have already been declared complete. The team realizes that its Definition of Done does not include sufficient testing. What should the team do FIRST?",
+    "choices": [
+      "A. Strengthen the Definition of Done with the required quality activities and apply it consistently to future work.",
+      "B. Create a separate testing iteration after every three development iterations.",
+      "C. Accept the defects as normal because agile values speed over documentation and quality.",
+      "D. Ask the product owner to lower the acceptance criteria."
+    ],
+    "correct": "A",
+    "explanation": "The Definition of Done establishes the shared quality threshold for completed work. If defects repeatedly escape because essential testing is missing, the team should improve the Definition of Done and build quality into each increment.",
+    "trap": "Quality is not a phase to push to the end of agile delivery."
+  },
+  {
+    "id": "ag_08",
+    "scenario": "Velocity drops after two new members join an agile team. The sponsor asks the project manager to compare each person's productivity and remove the lowest performer. What should the project manager do?",
+    "choices": [
+      "A. Calculate velocity per person and rank the team members.",
+      "B. Increase story point estimates so the team's velocity appears stable.",
+      "C. Ask the product owner to assign smaller stories to the new members.",
+      "D. Explain that velocity is a team planning measure, allow the team to stabilize, and inspect delivery trends rather than individual rankings."
+    ],
+    "correct": "D",
+    "explanation": "Velocity is primarily useful for a team's own forecasting and planning. It should not be used to compare individuals or as a performance target. Team composition changes can temporarily affect throughput while the team relearns how to work together.",
+    "trap": "Turning velocity into an individual productivity metric creates gaming and damages collaboration."
+  },
+  {
+    "id": "ag_09",
+    "scenario": "The team has discussed the same workflow problem in three consecutive retrospectives, but nothing has changed. What should the agile leader do NEXT?",
+    "choices": [
+      "A. Stop holding retrospectives because they are not producing results.",
+      "B. Help the team choose a small, specific improvement action, make ownership visible, and inspect the result in the next iteration.",
+      "C. Escalate the entire team to functional management.",
+      "D. Document the issue in lessons learned and wait until project closure."
+    ],
+    "correct": "B",
+    "explanation": "Retrospectives should lead to experiments and actionable improvements, not only discussion. A small, owned improvement that is inspected in the next cycle supports continuous improvement.",
+    "trap": "The trap is treating the retrospective as a meeting rather than a feedback-to-action loop."
+  },
+  {
+    "id": "ag_10",
+    "scenario": "The product owner is frequently unavailable, and the team waits several days for clarification on priorities and acceptance expectations. What should the project manager or agile leader do FIRST?",
+    "choices": [
+      "A. Let developers decide all product priorities permanently.",
+      "B. Freeze the backlog so no clarification is needed.",
+      "C. Work with the product owner and sponsor to establish timely product decision-making, including an empowered delegate if needed.",
+      "D. Extend each iteration to give the product owner more time to respond."
+    ],
+    "correct": "C",
+    "explanation": "The team needs timely access to product decisions and feedback. The first step is to restore an effective product ownership mechanism, which may include an empowered delegate when the primary product owner cannot be available enough.",
+    "trap": "Do not solve unavailable product ownership by freezing learning or transferring business prioritization to developers."
+  },
+  {
+    "id": "ag_11",
+    "scenario": "During backlog refinement, team members spend hours arguing whether a story will take 41 or 43 hours. What should the agile leader encourage?",
+    "choices": [
+      "A. Use relative estimation and focus on shared understanding, uncertainty, and comparative effort rather than false precision.",
+      "B. Require the project manager to provide the exact estimate.",
+      "C. Ask each developer for an individual estimate and average the results.",
+      "D. Postpone estimation until the story is already being developed."
+    ],
+    "correct": "A",
+    "explanation": "Agile estimation is often relative because uncertainty makes excessive precision misleading. The discussion should improve shared understanding of size, complexity, and risk rather than create an artificial exact number.",
+    "trap": "More digits do not mean more certainty."
+  },
+  {
+    "id": "ag_12",
+    "scenario": "A customer needs a product release by a fixed market date, but the amount of work that can be completed by then is uncertain. What is the BEST agile response?",
+    "choices": [
+      "A. Promise all requested scope and require overtime if needed.",
+      "B. Move the release date whenever velocity decreases.",
+      "C. Freeze all backlog priorities immediately.",
+      "D. Keep the date visible, prioritize the highest-value work, and forecast likely scope using empirical delivery data."
+    ],
+    "correct": "D",
+    "explanation": "When time is constrained, agile teams can manage scope flexibly by delivering the highest-value items first and using actual throughput or velocity trends to forecast what is likely to fit.",
+    "trap": "The trap is fixing both date and all scope despite uncertainty."
+  },
+  {
+    "id": "ag_13",
+    "scenario": "Midway through an agile project, the team discovers a new regulatory requirement that could affect the product design. What should the project manager do?",
+    "choices": [
+      "A. Defer the requirement until the next project because the backlog is already approved.",
+      "B. Collaborate with compliance experts and the product owner, add the requirement to the backlog, and prioritize it based on risk and value.",
+      "C. Stop the project until a full predictive compliance plan is created.",
+      "D. Let the development team decide whether the regulation is important."
+    ],
+    "correct": "B",
+    "explanation": "Regulatory needs are real product constraints and should be incorporated into adaptive planning. The team should involve the right expertise, make the work visible, and prioritize it appropriately rather than ignore it or automatically abandon agile delivery.",
+    "trap": "Agile does not remove compliance obligations."
+  },
+  {
+    "id": "ag_14",
+    "scenario": "The daily stand-up has become a 30-minute status meeting where each person reports progress to the project manager. Team members rarely coordinate with one another. What should the agile leader do?",
+    "choices": [
+      "A. Ask each person to provide more detailed status so the project manager can control the work.",
+      "B. Cancel the daily meeting and replace it with a weekly report.",
+      "C. Refocus the event on the team's short-cycle planning, coordination, progress toward the goal, and impediments.",
+      "D. Invite senior management so the team takes the meeting more seriously."
+    ],
+    "correct": "C",
+    "explanation": "The daily coordination event is for the team to inspect progress, adapt its plan, and surface impediments. It should not become a status report to a manager.",
+    "trap": "The project manager is not the audience for a daily stand-up."
+  },
+  {
+    "id": "ag_15",
+    "scenario": "Stakeholders send feature requests directly to individual developers, causing frequent context switching and inconsistent priorities. What should the agile leader do?",
+    "choices": [
+      "A. Establish a transparent product backlog and route prioritization through the product owner while keeping stakeholder feedback visible.",
+      "B. Tell developers to satisfy whichever stakeholder has the highest organizational title.",
+      "C. Allow every developer to maintain a separate priority list.",
+      "D. Block stakeholders from communicating with the team."
+    ],
+    "correct": "A",
+    "explanation": "Stakeholder collaboration should remain open, but product priorities need a transparent decision mechanism. The product owner manages ordering so the team is not pulled in conflicting directions.",
+    "trap": "The answer is not to block feedback; it is to prevent uncoordinated priority changes."
+  },
+  {
+    "id": "ag_16",
+    "scenario": "A Kanban-style agile team has many items started but very few completed. Cycle time is increasing. What should the team do FIRST?",
+    "choices": [
+      "A. Start more work so no one is idle.",
+      "B. Increase the number of workflow columns.",
+      "C. Ask the product owner to add more high-priority items.",
+      "D. Reduce work in progress, swarm on finishing existing items, and inspect the bottleneck."
+    ],
+    "correct": "D",
+    "explanation": "Excessive work in progress increases queues, context switching, and cycle time. Limiting WIP and finishing work before starting more helps expose bottlenecks and improve flow.",
+    "trap": "High utilization is not the same as high flow."
+  },
+  {
+    "id": "ag_17",
+    "scenario": "A backlog item is too large to complete within one iteration and contains several different user outcomes. What should the team do?",
+    "choices": [
+      "A. Carry the entire item across multiple iterations without changing it.",
+      "B. Split it into smaller vertical slices that each deliver testable user value.",
+      "C. Assign different technical layers to separate specialists and mark each layer complete.",
+      "D. Double the iteration length for this item."
+    ],
+    "correct": "B",
+    "explanation": "Large items should be decomposed into small, valuable, testable slices. Vertical slicing preserves end-to-end value and supports earlier feedback.",
+    "trap": "Splitting only by technical layer creates partially finished components rather than usable increments."
+  },
+  {
+    "id": "ag_18",
+    "scenario": "A sponsor says the team should spend the first six months completing the full architecture before showing anything to users. The product contains major market assumptions. What should the project manager recommend?",
+    "choices": [
+      "A. Follow the sponsor's request because architecture must be complete before value can be tested.",
+      "B. Build all low-risk features first and postpone user feedback.",
+      "C. Deliver a thin end-to-end increment early to test assumptions and obtain real feedback.",
+      "D. Create more detailed architecture documents instead of delivering working product."
+    ],
+    "correct": "C",
+    "explanation": "When important assumptions exist, early usable increments reduce uncertainty and validate whether the solution creates value. Architecture can evolve while maintaining sufficient quality and coherence.",
+    "trap": "The trap is optimizing for technical completeness before validating business value."
+  },
+  {
+    "id": "ag_19",
+    "scenario": "After seeing a working increment, a customer asks for a significant change to a feature that was previously accepted. What should the agile team do?",
+    "choices": [
+      "A. Evaluate the new need with the product owner, update the backlog, and reprioritize based on value and impact.",
+      "B. Reject the change because accepted work can never be revisited.",
+      "C. Require a formal change control board before discussing the request.",
+      "D. Implement the change immediately without considering current priorities."
+    ],
+    "correct": "A",
+    "explanation": "Agile delivery uses feedback to adapt the product. The request should be made visible in the backlog and prioritized against other work based on value, risk, and impact rather than automatically rejected or immediately inserted.",
+    "trap": "Welcoming change still requires prioritization."
+  },
+  {
+    "id": "ag_20",
+    "scenario": "An agile project depends on a vendor working under a rigid fixed-scope contract. New learning is causing frequent product changes, and the vendor resists any adjustment. What should the project manager do?",
+    "choices": [
+      "A. Force the internal team to stop changing the backlog.",
+      "B. Hide changes from the vendor until the next invoice is paid.",
+      "C. Replace the vendor immediately without discussion.",
+      "D. Collaborate with procurement and the vendor to create an incremental delivery arrangement and adjust commercial terms where needed."
+    ],
+    "correct": "D",
+    "explanation": "Contracts should support the delivery approach where possible. The project manager should work with procurement and the supplier to align incentives, delivery increments, and appropriate flexibility rather than allowing the contract to block value delivery.",
+    "trap": "The trap is treating the contract as untouchable even when it undermines project outcomes."
+  },
+  {
+    "id": "ag_21",
+    "scenario": "Two developers strongly disagree about a technical solution, and the disagreement is delaying a high-risk story. Both approaches appear plausible. What should the agile leader do?",
+    "choices": [
+      "A. Select the solution personally to save time.",
+      "B. Facilitate collaboration and, if uncertainty remains, use a small time-boxed experiment or spike to generate evidence.",
+      "C. Ask the product owner to choose the technical design.",
+      "D. Split the team and let both full solutions be built."
+    ],
+    "correct": "B",
+    "explanation": "The agile leader facilitates team problem solving. When technical uncertainty cannot be resolved through discussion alone, a short experiment can provide evidence and reduce risk before major commitment.",
+    "trap": "Servant leadership does not mean avoiding decisions; it means enabling the team to make informed decisions."
+  },
+  {
+    "id": "ag_22",
+    "scenario": "A newly distributed agile team is struggling with handoffs, time-zone delays, and misunderstandings. What should the project manager do FIRST?",
+    "choices": [
+      "A. Require all team members to relocate to one office.",
+      "B. Increase documentation and eliminate synchronous communication.",
+      "C. Facilitate team working agreements covering communication channels, overlap hours, response expectations, and shared visual information.",
+      "D. Assign one person to relay all messages between locations."
+    ],
+    "correct": "C",
+    "explanation": "Distributed teams benefit from explicit working agreements and intentional communication practices. Establishing how and when the team collaborates reduces ambiguity and strengthens transparency.",
+    "trap": "The trap is solving collaboration problems by creating a communication bottleneck."
+  },
+  {
+    "id": "ag_23",
+    "scenario": "The product owner consistently prioritizes requests from the most vocal stakeholder, while quieter stakeholders represent larger business value and risk. What should the project manager do?",
+    "choices": [
+      "A. Facilitate transparent prioritization using value, risk, dependencies, and broader stakeholder feedback.",
+      "B. Let the loudest stakeholder continue because responsiveness is an agile value.",
+      "C. Ask the development team to ignore the product owner's backlog order.",
+      "D. Escalate every backlog decision to the sponsor."
+    ],
+    "correct": "A",
+    "explanation": "Backlog ordering should reflect value and relevant constraints, not stakeholder volume. The project manager or agile leader can help make decision criteria and stakeholder needs transparent while respecting product ownership.",
+    "trap": "Stakeholder collaboration does not mean 'whoever shouts loudest wins.'"
+  },
+  {
+    "id": "ag_24",
+    "scenario": "The team's burndown chart has been nearly flat for several days. Team members say most stories are 'almost done.' What should the agile leader encourage?",
+    "choices": [
+      "A. Increase story points on the completed work.",
+      "B. Extend the iteration so all partially completed work can finish.",
+      "C. Start additional stories to improve utilization.",
+      "D. Inspect why work is not reaching Done, reduce work in progress, and swarm on completing valuable items."
+    ],
+    "correct": "D",
+    "explanation": "A flat burndown with many items nearly finished signals a flow problem. The team should focus on completing work, uncover blockers, and avoid spreading effort across more unfinished items.",
+    "trap": "Being busy is not the same as producing Done increments."
+  },
+  {
+    "id": "ag_25",
+    "scenario": "A story satisfies its functional acceptance criteria, but mandatory user documentation included in the team's Definition of Done is incomplete. The iteration ends today. How should the story be treated?",
+    "choices": [
+      "A. Mark it Done because acceptance criteria are more important than the Definition of Done.",
+      "B. Do not count it as Done until the full Definition of Done is satisfied.",
+      "C. Mark it Done and create a hidden task for the documentation later.",
+      "D. Ask the sponsor to waive the Definition of Done."
+    ],
+    "correct": "B",
+    "explanation": "A backlog item is complete only when it satisfies the team's agreed Definition of Done. Acceptance criteria define item-specific expectations; the Definition of Done provides the broader quality threshold for the increment.",
+    "trap": "Acceptance criteria and Definition of Done are related but not interchangeable."
+  },
+  {
+    "id": "ag_26",
+    "scenario": "The actual end customer is only available at the end of a six-month release, but the team needs frequent product feedback. What should the project manager do?",
+    "choices": [
+      "A. Wait until the release is complete because only the actual customer can provide useful feedback.",
+      "B. Let developers assume what the customer wants.",
+      "C. Establish an empowered representative or proxy and additional feedback channels while arranging periodic direct customer validation when possible.",
+      "D. Replace iterative reviews with detailed requirement documents."
+    ],
+    "correct": "C",
+    "explanation": "Agile delivery depends on timely feedback. When direct access is constrained, the project should establish credible representation and other feedback mechanisms while preserving opportunities for direct validation where possible.",
+    "trap": "Limited customer availability is a constraint to manage, not a reason to eliminate feedback cycles."
+  },
+  {
+    "id": "ag_27",
+    "scenario": "An agile team achieves its iteration goal earlier than expected and has remaining capacity. What is the BEST next action?",
+    "choices": [
+      "A. Coordinate with the product owner and pull the next highest-value ready work that can be completed without jeopardizing quality or the achieved goal.",
+      "B. End the iteration immediately and send the team home.",
+      "C. Increase the story points of completed items to use the remaining capacity.",
+      "D. Start several large stories even if none can be finished."
+    ],
+    "correct": "A",
+    "explanation": "Once the goal is secure, the team can collaborate with the product owner to use available capacity on additional valuable, ready work, while maintaining quality and avoiding unnecessary unfinished work.",
+    "trap": "The goal is value and completed work, not artificially filling every hour."
+  },
+  {
+    "id": "ag_28",
+    "scenario": "A high-value backlog item depends on a technology the team has never used. The uncertainty makes the estimate unreliable. What should the team do?",
+    "choices": [
+      "A. Commit to the item using the highest estimate proposed.",
+      "B. Remove the item permanently from the backlog.",
+      "C. Ask the sponsor for a fixed technical estimate.",
+      "D. Run a short time-boxed spike or prototype to learn enough to reduce uncertainty before committing to full implementation."
+    ],
+    "correct": "D",
+    "explanation": "A spike or prototype is useful when the team needs targeted learning before making a larger delivery commitment. It reduces uncertainty and supports better decisions and estimates.",
+    "trap": "Do not solve uncertainty by pretending the estimate is certain."
+  },
+  {
+    "id": "ag_29",
+    "scenario": "The team has been meeting release dates by postponing refactoring and automated testing. Defects and cycle time are now increasing. What should the project manager encourage?",
+    "choices": [
+      "A. Continue postponing technical work because customers only value features.",
+      "B. Make technical debt visible and prioritize appropriate quality and refactoring work to restore sustainable delivery.",
+      "C. Create a separate project after release to fix all technical debt.",
+      "D. Ask the team to work overtime until defect levels fall."
+    ],
+    "correct": "B",
+    "explanation": "Technical debt reduces future delivery capability and quality. Agile teams should make it visible and deliberately balance product features with work needed to maintain sustainable flow and a healthy product.",
+    "trap": "Short-term feature output can destroy long-term value if technical debt is ignored."
+  },
+  {
+    "id": "ag_30",
+    "scenario": "Executives ask the agile team for the exact date when the entire product will be 'finished,' but the backlog is expected to evolve as users provide feedback. What should the project manager provide?",
+    "choices": [
+      "A. A guaranteed completion date for every current backlog item.",
+      "B. No forecast at all because agile teams cannot predict anything.",
+      "C. A transparent roadmap or release forecast based on current priorities and empirical delivery data, including assumptions and regular updates.",
+      "D. A fixed scope baseline that prevents future backlog changes."
+    ],
+    "correct": "C",
+    "explanation": "Agile teams can forecast while acknowledging uncertainty. A roadmap or release forecast should communicate priorities, assumptions, and likely timing using empirical data, and it should be updated as learning changes the plan.",
+    "trap": "Agile is adaptive, not plan-free; forecasts are useful when treated as forecasts rather than guarantees."
+  }
+];
+
+let current=0,answers=Array(QUESTIONS.length).fill(null),flags=Array(QUESTIONS.length).fill(false),secondsLeft=2400,timerHandle=null,startedAt=null;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("show"));document.getElementById(id).classList.add("show")}
+function toggleTheme(){const r=document.documentElement;r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark")}
+function startExam(){startedAt=Date.now();showScreen("exam");renderQuestion();renderClock();timerHandle=setInterval(()=>{secondsLeft--;renderClock();if(secondsLeft<=0){clearInterval(timerHandle);finishExam(true)}},1000)}
+function renderClock(){const e=document.getElementById("clock"),m=Math.floor(Math.max(0,secondsLeft)/60),s=Math.max(0,secondsLeft)%60;e.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");e.classList.toggle("warn",secondsLeft<=180&&secondsLeft>60);e.classList.toggle("low",secondsLeft<=60)}
+function renderQuestion(){const q=QUESTIONS[current],selected=answers[current],flagHtml=flags[current]?'<span class="flagtag">FLAGGED</span>':"";const opts=q.choices.map(c=>{const l=c.charAt(0),t=c.replace(/^[A-D]\.\s*/,"");return `<div class="opt ${selected===l?"sel":""}" onclick="selectAnswer('${l}')"><div class="ltr">${l}</div><div>${esc(t)}</div></div>`}).join("");document.getElementById("qpane").innerHTML=`<div class="qcard"><div class="qnum">Question ${current+1} of ${QUESTIONS.length} ${flagHtml}</div><div class="stem">${esc(q.scenario)}</div><div>${opts}</div></div>`;document.getElementById("qCounter").textContent=`${current+1}/${QUESTIONS.length}`;document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===QUESTIONS.length-1;document.getElementById("flagBtn").textContent=flags[current]?"Unflag":"Flag"}
+function selectAnswer(l){answers[current]=l;renderQuestion()}function toggleFlag(){flags[current]=!flags[current];renderQuestion()}function nextQ(){if(current<QUESTIONS.length-1){current++;renderQuestion()}}function prevQ(){if(current>0){current--;renderQuestion()}}
+function openNavigator(){document.getElementById("navGrid").innerHTML=QUESTIONS.map((q,i)=>`<div class="navcell ${answers[i]?"ans":""} ${flags[i]?"flag":""}" onclick="jumpTo(${i})">${i+1}</div>`).join("");document.getElementById("navModal").classList.add("show")}function closeNavigator(){document.getElementById("navModal").classList.remove("show")}function jumpTo(i){current=i;closeNavigator();renderQuestion()}
+function openSubmitModal(){const a=answers.filter(Boolean).length,f=flags.filter(Boolean).length;document.getElementById("submitSummary").innerHTML=`Answered: <strong>${a}/${QUESTIONS.length}</strong><br>Flagged: <strong>${f}</strong><br>Unanswered: <strong>${QUESTIONS.length-a}</strong>`;document.getElementById("submitModal").classList.add("show")}function closeSubmitModal(){document.getElementById("submitModal").classList.remove("show")}
+function finishExam(timeExpired){
+closeSubmitModal();if(timerHandle)clearInterval(timerHandle);
+const score=QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.correct?1:0),0),skipped=answers.filter(a=>!a).length,wrong=QUESTIONS.length-score-skipped,pct=Math.round((score/QUESTIONS.length)*100),elapsed=fmt(startedAt?Math.round((Date.now()-startedAt)/1000):0);
+let cls,band,msg,cta;
+if(score>=24){
+cls="pass";band="Strong Agile Understanding";
+msg="You have a strong grasp of agile mindset, adaptive planning, value delivery, backlog management, team empowerment, feedback loops, quality, and continuous improvement. Review any missed trap explanations, then continue to the next topic.";
+cta=`<div class="cta"><h3>Ready for the next challenge?</h3><p class="small">Continue your free PMP pathway, or explore the Premium PMP Preparation Program for deeper scenario practice, mock exams, weak-area tracking, and structured coaching.</p><div class="cta-buttons">${linkBtn(FREE_COURSE_URL,"Return to Free PMP Course","btn-primary")}${linkBtn(PREMIUM_URL,"Explore Premium PMP Program","")}</div></div>`;
+}else if(score>=18){
+cls="mid";band="Agile Knowledge Gaps Identified";
+msg="You understand many agile concepts, but the trap questions exposed gaps that can cost marks in situational PMP questions. Review where you confused agility with lack of planning, uncontrolled change, command-and-control leadership, or activity instead of value.";
+cta=`<div class="cta"><h3>You are close — strengthen the gaps now</h3><p class="small">Join the <strong>Premium PMP Preparation Program</strong> for structured guidance, PMP mindset training, detailed answer reasoning, topic practice, and full mock exams.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Review Free Course","")}</div></div>`;
+}else{
+cls="low";band="Agile Mindset Needs Attention";
+msg="The result shows that key agile concepts are still blending together. Revisit value-driven delivery, iterative planning, backlog prioritization, self-organizing teams, servant leadership, feedback, Definition of Done, flow, and continuous improvement.";
+cta=`<div class="cta"><h3>Stop guessing the agile logic</h3><p class="small">The Premium PMP Preparation Program is designed to help you understand the PMP mindset, distinguish tempting distractors, and practice agile scenarios under exam conditions.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Rewatch the Free Lesson","")}</div></div>`;
+}
+const review=QUESTIONS.map((q,i)=>{const a=answers[i],r=!a?"skipped":a===q.correct?"correct":"incorrect";return `<div class="revitem ${r}"><h3>Question ${i+1}</h3><p class="small"><strong>${esc(q.scenario)}</strong></p><div class="answerline"><strong>Your answer:</strong> ${esc(a?choice(q,a):"Skipped")}</div><div class="answerline"><strong>Correct answer:</strong> ${esc(choice(q,q.correct))}</div><div class="explain"><strong>Why:</strong> ${esc(q.explanation)}</div><div class="trapbox"><strong>PMI Trap:</strong> ${esc(q.trap)}</div></div>`}).join("");
+document.getElementById("resultsBody").innerHTML=`<div class="center"><div class="brand">PMI EXAM SIMULATOR</div><h1>Agile</h1>${timeExpired?'<p class="small" style="color:var(--bad);font-weight:700">Time expired — submitted automatically.</p>':""}<div class="scoreBig">${score}/${QUESTIONS.length}</div><div class="hero ${cls}">${band}</div><div class="bar"><span style="width:${pct}%"></span></div><p class="small muted">${pct}% · Target score 80%</p></div>
+<div class="statrow"><div class="statbox"><div class="statv">${score}</div><div class="statl">Correct</div></div><div class="statbox"><div class="statv">${wrong}</div><div class="statl">Incorrect</div></div><div class="statbox"><div class="statv">${skipped}</div><div class="statl">Skipped</div></div><div class="statbox"><div class="statv">${elapsed}</div><div class="statl">Time Used</div></div></div>
+<div class="result-message">${esc(msg)}</div>${cta}
+<h2>Answer Review &amp; PMI Traps</h2><p class="small muted">Study the trap explanation even when you answered correctly. The goal is to understand why the distractors were tempting.</p>${review}
+<div class="center" style="margin-top:1rem"><button class="btn-primary" onclick="restartExam()">Retake Simulator</button><button onclick="toggleTheme()">Theme</button></div>`;
+showScreen("results");
+}
+function restartExam(){current=0;answers=Array(QUESTIONS.length).fill(null);flags=Array(QUESTIONS.length).fill(false);secondsLeft=2400;startedAt=null;showScreen("intro")}
+function choice(q,l){return q.choices.find(c=>c.startsWith(l+"."))||l}
+function fmt(s){const m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,"0")}`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function linkBtn(url,label,cls){if(!url||url.includes("YOUR_"))return `<button class="${cls}" onclick="alert('Add your Skool link in the HTML: PREMIUM_URL / FREE_COURSE_URL near the top of the script.')">${esc(label)}</button>`;return `<button class="${cls}" onclick="window.open('${esc(url)}','_blank','noopener')">${esc(label)}</button>`}
+</script>
+</body>
+</html>
