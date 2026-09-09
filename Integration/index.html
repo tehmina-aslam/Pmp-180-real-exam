@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent PMP practice simulator for Integration Management.">
+<title>PMI Exam Simulator — Integration Management</title>
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--surface2:#f6f9fc;--text:#16202e;--muted:#5b6b80;--accent:#12386b;--accent2:#1c5fa8;--border:#dde5ee;--border2:#c6d3e2;--ok:#1a7f4b;--bad:#b3261e;--warn:#a8700a;--gold:#b8860b}
+[data-theme="dark"]{--bg:#0e1520;--surface:#16202e;--surface2:#1b2635;--text:#e7edf5;--muted:#9fb0c4;--accent:#5aa2e8;--accent2:#7fbcf5;--border:#28374a;--border2:#3a4c63;--ok:#4ecf8b;--bad:#ff6f61;--warn:#e0b44a;--gold:#d9ae4a}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;overflow:hidden;display:flex;flex-direction:column;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);padding:.5rem .9rem}
+button:hover{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
+#app{flex:1 1 auto;min-height:0;display:flex}.screen{display:none;width:100%;min-width:0}.screen.show{display:flex;flex-direction:column;min-height:0}
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:1.1rem 1.2rem}.screen>.wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;box-shadow:0 2px 14px rgba(16,32,56,.07)}
+h1,h2,h3{margin:.2rem 0 .7rem;color:var(--accent)}h1{font-size:1.55rem}h2{font-size:1.22rem}h3{font-size:1.02rem}
+p{margin:.5rem 0}.small{font-size:.85rem}.muted{color:var(--muted)}.center{text-align:center}.brand{font-weight:800;letter-spacing:.4px;color:var(--accent)}
+.tag{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:.12rem .6rem;font-size:.74rem;color:var(--muted);margin-right:.35rem}
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}.hero-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.8rem;text-align:center}.hero-stat strong{display:block;color:var(--accent);font-size:1.35rem}
+.notice{border-left:4px solid var(--accent);background:var(--surface2);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}.disclaimer{font-size:.78rem;color:var(--muted);margin-top:1rem}
+#exam.screen.show>.wrap{overflow:hidden;display:flex;flex-direction:column}
+.toolbar{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--border);padding:.45rem .9rem;display:flex;gap:.4rem;align-items:center;flex-wrap:nowrap;min-width:0}
+.toolbar .brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}.toolbar .sp,.navbar .sp{flex:1}
+.clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.02rem;letter-spacing:.5px;padding:.3rem .7rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);white-space:nowrap}.clock.warn{color:#fff;background:var(--warn);border-color:var(--warn)}.clock.low{color:#fff;background:var(--bad);border-color:var(--bad)}
+#qpane{flex:1 1 auto;min-height:0;overflow:hidden;padding:.85rem 0 1rem;display:flex;flex-direction:column}
+.qcard{flex:1 1 auto;min-height:0;overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.2rem 1.4rem 1.4rem;box-shadow:0 1px 3px rgba(16,32,56,.06)}
+.qcard>*{max-width:940px;margin-left:auto;margin-right:auto}.qnum{font-weight:700;color:var(--muted);font-size:.82rem;margin:0 0 .55rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.flagtag{background:var(--warn);color:#fff;border-radius:5px;padding:.05rem .45rem;font-size:.7rem;font-weight:700}.stem{font-size:1.04rem;margin:.15rem 0 .95rem;line-height:1.65}
+.opt{border:1px solid var(--border2);background:var(--surface);border-radius:10px;padding:.68rem .85rem;margin-bottom:.55rem;cursor:pointer;display:flex;gap:.7rem;align-items:flex-start;transition:.12s}
+.opt:hover{border-color:var(--accent2);background:var(--surface2)}.opt.sel{border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .ltr{flex:0 0 1.55rem;height:1.55rem;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:var(--muted);background:var(--surface)}.opt.sel .ltr{background:var(--accent);border-color:var(--accent);color:#fff}
+.navbar{flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);padding:.55rem 1rem;display:flex;gap:.45rem;align-items:center;flex-wrap:nowrap;min-width:0}.qcounter{font-size:.78rem;font-weight:700;color:var(--muted);padding:0 .5rem;white-space:nowrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(8,16,28,.55);z-index:60;align-items:center;justify-content:center;padding:1rem}.modal.show{display:flex}.modal .box{background:var(--surface);border-radius:14px;padding:1.2rem;max-width:760px;width:100%;max-height:86vh;overflow:auto;border:1px solid var(--border2)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.35rem;margin-top:.6rem}.navcell{border:1px solid var(--border2);border-radius:7px;padding:.4rem 0;text-align:center;font-size:.78rem;cursor:pointer;background:var(--surface2)}.navcell.ans{background:var(--accent);color:#fff;border-color:var(--accent)}.navcell.flag{outline:2px solid var(--warn)}
+.scoreBig{font-size:3rem;font-weight:800;color:var(--accent);line-height:1}.hero{font-size:1.2rem;font-weight:800;margin:.5rem 0;padding:.35rem 1rem;border-radius:999px;display:inline-block}.hero.pass{background:var(--ok);color:#fff}.hero.mid{background:var(--warn);color:#fff}.hero.low{background:var(--bad);color:#fff}
+.statrow{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0}.statbox{flex:1 1 120px;border:1px solid var(--border2);border-radius:10px;padding:.65rem .8rem;text-align:center;background:var(--surface2)}.statv{font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1.1}.statl{font-size:.78rem;color:var(--muted)}
+.bar{height:12px;border-radius:6px;background:var(--surface2);overflow:hidden;border:1px solid var(--border2);margin:.5rem 0}.bar>span{display:block;height:100%;background:var(--accent)}
+.result-message{margin:1rem 0;padding:1rem;border-radius:10px;border:1px solid var(--border2);background:var(--surface2)}.cta{border:2px solid var(--accent);border-radius:12px;padding:1rem 1.1rem;margin:1rem 0;background:var(--surface2)}.cta-buttons{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.revitem{border:1px solid var(--border2);border-radius:10px;padding:.8rem .95rem;margin-bottom:.7rem;background:var(--surface)}.revitem.correct{border-left:5px solid var(--ok)}.revitem.incorrect{border-left:5px solid var(--bad)}.revitem.skipped{border-left:5px solid var(--muted)}
+.answerline,.explain{font-size:.88rem;margin:.25rem 0}.trapbox{margin-top:.55rem;padding:.65rem .75rem;border-radius:8px;background:var(--surface2);border-left:4px solid var(--gold);font-size:.86rem}
+.footer{flex:0 0 auto;text-align:center;font-size:.72rem;color:var(--muted);padding:.35rem 1rem;border-top:1px solid var(--border);background:var(--surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:720px){.hero-grid{grid-template-columns:repeat(2,1fr)}.toolbar .brand{max-width:35vw}.toolbar .tag{display:none}.navbar{gap:.25rem;padding:.45rem}.navbar button{padding:.42rem .55rem;font-size:.82rem}.qcounter{padding:0 .15rem}}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="intro" class="screen show"><div class="wrap"><div class="card" style="max-width:820px;margin:4vh auto">
+<div class="brand">PMI EXAM SIMULATOR</div>
+<h1>Integration Management</h1>
+<p class="muted">10 exam-style PMI trap questions focused on the project charter, project management plan, integrated change control, hybrid delivery choices, knowledge transfer, baseline updates, and coordinated project execution.</p>
+
+<div class="hero-grid">
+<div class="hero-stat"><strong>10</strong><span class="small muted">Questions</span></div>
+<div class="hero-stat"><strong>13:20</strong><span class="small muted">Exam Time</span></div>
+<div class="hero-stat"><strong>80%</strong><span class="small muted">Target Score</span></div>
+<div class="hero-stat"><strong>1</strong><span class="small muted">Best Answer</span></div>
+</div>
+
+<div class="notice small">
+<strong>How to approach Integration traps:</strong>
+Use the charter to authorize the project and the project manager. Define the change approach before execution begins.
+Record, analyze, approve, then update baselines. Tailor delivery approaches where different project components need different methods.
+Do not bypass approved governance simply because a change seems small.
+</div>
+
+<p class="small"><strong>Exam behavior:</strong> answer all 10 questions before viewing explanations. You may flag questions and return to them before submitting.</p>
+<button class="btn-primary" onclick="startExam()">Start PMI Exam Simulator</button>
+<button onclick="toggleTheme()">Theme</button>
+
+<p class="disclaimer">
+Independent practice material. This simulator is not affiliated with, sponsored by, or endorsed by PMI.
+The questions are original practice items and do not reproduce live PMI examination content.
+</p>
+</div></div></section>
+
+<section id="exam" class="screen">
+<div class="toolbar"><span class="brand small">PMI EXAM SIMULATOR</span><span class="tag">Integration Management</span><span class="sp"></span><button onclick="toggleTheme()">Theme</button><span id="clock" class="clock">13:20</span></div>
+<div class="wrap"><div id="qpane"></div></div>
+<div class="navbar"><span id="qCounter" class="qcounter"></span><button id="flagBtn" onclick="toggleFlag()">Flag</button><button onclick="openNavigator()">Navigator</button><span class="sp"></span><button id="prevBtn" onclick="prevQ()">Previous</button><button id="nextBtn" class="btn-primary" onclick="nextQ()">Next</button><button class="btn-danger" onclick="openSubmitModal()">Submit</button></div>
+</section>
+
+<section id="results" class="screen"><div class="wrap"><div class="card" id="resultsBody"></div></div></section>
+</div>
+
+<div class="footer">PMI Exam Simulator · Independent PMP® practice material · Not official PMI examination content</div>
+
+<div id="navModal" class="modal"><div class="box"><h3>Question Navigator</h3><p class="small muted">Blue = answered · gold outline = flagged</p><div id="navGrid" class="navgrid"></div><div style="margin-top:.9rem"><button class="btn-primary" onclick="closeNavigator()">Close</button></div></div></div>
+
+<div id="submitModal" class="modal"><div class="box" style="max-width:520px"><h3>Submit your simulator?</h3><p class="small">You will not be able to change answers after submission.</p><div id="submitSummary" class="small muted"></div><div style="margin-top:.9rem"><button class="btn-danger" onclick="finishExam(false)">Yes, submit</button><button onclick="closeSubmitModal()">Go back</button></div></div></div>
+
+<script>
+const PREMIUM_URL="YOUR_PREMIUM_PMP_PROGRAM_LINK_HERE";
+const FREE_COURSE_URL="YOUR_SKOOL_FREE_COURSE_LINK_HERE";
+
+const QUESTIONS=[
+{
+id:"int_01",
+scenario:"You are newly assigned as project manager. A functional manager says, 'Nobody told me you can pull my people onto this project.' Which document should you show the functional manager?",
+choices:[
+"A. The project scope statement.",
+"B. The project management plan.",
+"C. The project charter.",
+"D. The resource management plan."
+],
+correct:"C",
+explanation:"The project charter formally authorizes the project and gives the project manager authority to apply organizational resources to project activities. It is the key document that establishes the project manager's authority.",
+trap:"The trap is choosing the resource management plan because the dispute involves people. That plan describes how resources are managed, but the charter provides the project manager's formal authority."
+},
+{
+id:"int_02",
+scenario:"Your organization is starting its first agile project. A team member says, 'Agile teams do not need a charter — the backlog is enough.' Which response is CORRECT?",
+choices:[
+"A. A charter is still needed; it can be short, but it authorizes the project and states its purpose.",
+"B. A charter is not needed, because the product backlog already defines everything the team will build.",
+"C. A charter is not needed, because the product owner's approval replaces the sponsor's authorization.",
+"D. A charter is needed, and it must be the full formal document signed by the sponsor before any sprint begins."
+],
+correct:"A",
+explanation:"Agile does not remove the need for project authorization. A charter may be lightweight and appropriately tailored, but it still communicates purpose, authority, high-level objectives, and sponsorship.",
+trap:"The trap is assuming agile eliminates governance documents. Tailoring can make documents lighter, but does not remove the need for project authorization."
+},
+{
+id:"int_03",
+scenario:"During execution, the customer emails a request to change a deliverable. Your project follows a formal change control process. Which sequence of steps is CORRECT?",
+choices:[
+"A. Change control board decides → analyze the impact → record in the change log → update the baselines.",
+"B. Update the baselines → record in the change log → change control board decides → inform stakeholders.",
+"C. Analyze the impact → implement the change → change control board decides → record in the change log.",
+"D. Record in the change log → analyze the impact → change control board decides → update the baselines."
+],
+correct:"D",
+explanation:"The request should first be formally captured, then analyzed for impact. The authorized decision body then approves, rejects, or defers it. Approved changes are incorporated by updating the affected baselines and project documents.",
+trap:"The trap is implementing or updating baselines before approval. Formal control means document first, analyze second, decide third, then update and implement."
+},
+{
+id:"int_04",
+scenario:"During planning, the sponsor says, 'Let's not waste time on a change process now — we will decide how to handle changes when they come up.' What should you do?",
+choices:[
+"A. Agree with the sponsor, because defining processes early slows down planning and frustrates the team.",
+"B. Define the change management approach now, as part of the project management plan.",
+"C. Copy the change process from the project charter, since the sponsor has already approved that document.",
+"D. Let the change control board write the process after the first change request arrives."
+],
+correct:"B",
+explanation:"The project should establish how changes will be requested, analyzed, approved, tracked, and implemented before changes start occurring. The change management approach is part of the project management plan.",
+trap:"The trap is waiting for the first change. Governance is most effective when the rules are defined before a high-pressure decision is needed."
+},
+{
+id:"int_05",
+scenario:"Your project has two parts: a data-center build with fixed regulatory requirements and a well-known design, and a customer mobile app whose requirements are expected to change as users give feedback. Which development approach should you propose in the project management plan?",
+choices:[
+"A. Predictive for both parts, so that the whole project shares one baseline and one status report.",
+"B. Adaptive for both parts, so that the whole project can respond quickly to user feedback.",
+"C. Predictive for the data-center build and adaptive for the mobile app, so that each part suits its risk.",
+"D. No fixed approach; each team chooses its own method as the work begins."
+],
+correct:"C",
+explanation:"A hybrid approach allows different components to use the delivery method that best fits their uncertainty, constraints, and feedback needs. Stable regulated work can be predictive, while evolving product work can be adaptive.",
+trap:"The trap is forcing one lifecycle across the entire project for administrative convenience. Integration includes tailoring the approach to the work."
+},
+{
+id:"int_06",
+scenario:"The customer has signed final acceptance of the deliverables. A team member says, 'Let's do the lessons learned and archiving later — we are all needed on the next project.' What should you do?",
+choices:[
+"A. Hold the lessons learned session before the team is released, then finish the archive.",
+"B. Release the team now and schedule the lessons learned session for next quarter when people are free.",
+"C. Ask the project management office (PMO) to write the lessons learned from the records without the team.",
+"D. Record lessons learned from your own notes only, since the project met its objectives."
+],
+correct:"A",
+explanation:"Closing includes capturing lessons learned and completing project records while the information is current and key participants are still available. Waiting increases the risk that knowledge will be lost.",
+trap:"The trap is treating lessons learned as optional administrative work after acceptance. Knowledge capture is part of proper project closure."
+},
+{
+id:"int_07",
+scenario:"The change control board (CCB) has approved a change request that adds two weeks and $15,000 to the project. What should you do NEXT?",
+choices:[
+"A. Perform a second impact analysis before the team starts, to confirm the numbers.",
+"B. Have the team start the work and update the baselines when the project closes.",
+"C. Record the change as pending until the sponsor signs it as well.",
+"D. Update the schedule and cost baselines and inform the team and stakeholders."
+],
+correct:"D",
+explanation:"Once the authorized body approves the change, the project manager should update the affected baselines and project documents and communicate the approved decision before the changed work proceeds.",
+trap:"The trap is keeping an approved change in limbo or postponing baseline updates. Once approved, the current authorized plan must reflect it."
+},
+{
+id:"int_08",
+scenario:"Your change management plan states that all scope changes are approved by the change control board (CCB), which meets next Tuesday. A senior director asks the team to add a small report to the deliverable today. Impact analysis is complete: two hours of work, no effect on schedule, cost or risk. The director says, 'It is tiny — please do it today.' What should you do?",
+choices:[
+"A. Implement the change now, since the analysis showed no impact on the baselines.",
+"B. Submit the change request to the CCB and tell the director when the decision will be made.",
+"C. Ask the sponsor to approve the change by email today so the team can start before the CCB meets.",
+"D. Tell the director the report cannot be considered because the scope baseline is already approved."
+],
+correct:"B",
+explanation:"The approved change management plan governs how scope changes are authorized. Because the CCB is the defined approval authority, the project manager should follow that process even when the impact is small.",
+trap:"The trap is confusing low impact with no need for approval. Governance depends on the agreed process, not the size or seniority of the requester."
+},
+{
+id:"int_09",
+scenario:"During execution, you discover that a team lead authorized extra work last week without an approved change request. The work is already 60 percent complete. What should the project manager do FIRST?",
+choices:[
+"A. Let the team finish because stopping now would waste the work already completed.",
+"B. Stop or contain the unauthorized work, assess the situation, and process the change through the agreed change-control process.",
+"C. Update the scope baseline immediately because most of the work is already done.",
+"D. Ask the sponsor to approve the completed portion retroactively and skip impact analysis."
+],
+correct:"B",
+explanation:"Unauthorized work should not continue simply because effort has already been spent. The project manager should contain the deviation, understand the impact, and route the change through the established integrated change-control process.",
+trap:"The trap is allowing sunk cost to justify bypassing governance. Work already performed does not automatically authorize the remaining work."
+},
+{
+id:"int_10",
+scenario:"A recurring technical problem was solved successfully on one workstream, but a second workstream is now facing the same issue. What should the project manager do BEST?",
+choices:[
+"A. Ask the second team to solve the issue independently so both teams build experience.",
+"B. Share the existing solution and lessons learned across the project, and update organizational or project knowledge as appropriate.",
+"C. Wait until project closure to document the solution in the final lessons-learned report.",
+"D. Escalate the repeated issue to the sponsor because technical knowledge sharing is outside the project manager's role."
+],
+correct:"B",
+explanation:"Integration includes managing project knowledge during the project, not only at closure. Reusing lessons and making knowledge available across workstreams reduces repeated effort and improves delivery.",
+trap:"The trap is treating lessons learned as an end-of-project exercise. Effective knowledge management is continuous throughout the project."
+}
+];
+
+let current=0,answers=Array(QUESTIONS.length).fill(null),flags=Array(QUESTIONS.length).fill(false),secondsLeft=800,timerHandle=null,startedAt=null;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("show"));document.getElementById(id).classList.add("show")}
+function toggleTheme(){const r=document.documentElement;r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark")}
+function startExam(){startedAt=Date.now();showScreen("exam");renderQuestion();renderClock();timerHandle=setInterval(()=>{secondsLeft--;renderClock();if(secondsLeft<=0){clearInterval(timerHandle);finishExam(true)}},1000)}
+function renderClock(){const e=document.getElementById("clock"),m=Math.floor(Math.max(0,secondsLeft)/60),s=Math.max(0,secondsLeft)%60;e.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");e.classList.toggle("warn",secondsLeft<=180&&secondsLeft>60);e.classList.toggle("low",secondsLeft<=60)}
+function renderQuestion(){const q=QUESTIONS[current],selected=answers[current],flagHtml=flags[current]?'<span class="flagtag">FLAGGED</span>':"";const opts=q.choices.map(c=>{const l=c.charAt(0),t=c.replace(/^[A-D]\.\s*/,"");return `<div class="opt ${selected===l?"sel":""}" onclick="selectAnswer('${l}')"><div class="ltr">${l}</div><div>${esc(t)}</div></div>`}).join("");document.getElementById("qpane").innerHTML=`<div class="qcard"><div class="qnum">Question ${current+1} of ${QUESTIONS.length} ${flagHtml}</div><div class="stem">${esc(q.scenario)}</div><div>${opts}</div></div>`;document.getElementById("qCounter").textContent=`${current+1}/${QUESTIONS.length}`;document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===QUESTIONS.length-1;document.getElementById("flagBtn").textContent=flags[current]?"Unflag":"Flag"}
+function selectAnswer(l){answers[current]=l;renderQuestion()}function toggleFlag(){flags[current]=!flags[current];renderQuestion()}function nextQ(){if(current<QUESTIONS.length-1){current++;renderQuestion()}}function prevQ(){if(current>0){current--;renderQuestion()}}
+function openNavigator(){document.getElementById("navGrid").innerHTML=QUESTIONS.map((q,i)=>`<div class="navcell ${answers[i]?"ans":""} ${flags[i]?"flag":""}" onclick="jumpTo(${i})">${i+1}</div>`).join("");document.getElementById("navModal").classList.add("show")}function closeNavigator(){document.getElementById("navModal").classList.remove("show")}function jumpTo(i){current=i;closeNavigator();renderQuestion()}
+function openSubmitModal(){const a=answers.filter(Boolean).length,f=flags.filter(Boolean).length;document.getElementById("submitSummary").innerHTML=`Answered: <strong>${a}/${QUESTIONS.length}</strong><br>Flagged: <strong>${f}</strong><br>Unanswered: <strong>${QUESTIONS.length-a}</strong>`;document.getElementById("submitModal").classList.add("show")}function closeSubmitModal(){document.getElementById("submitModal").classList.remove("show")}
+function finishExam(timeExpired){
+closeSubmitModal();if(timerHandle)clearInterval(timerHandle);
+const score=QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.correct?1:0),0),skipped=answers.filter(a=>!a).length,wrong=QUESTIONS.length-score-skipped,pct=score*10,elapsed=fmt(startedAt?Math.round((Date.now()-startedAt)/1000):0);
+let cls,band,msg,cta;
+if(score>=8){
+cls="pass";band="Strong Integration Understanding";
+msg="You have a strong grasp of project authorization, tailoring, project management planning, integrated change control, hybrid delivery, knowledge management, baseline updates, and project closure. Review any missed traps before moving to the next topic.";
+cta=`<div class="cta"><h3>Ready for the next challenge?</h3><p class="small">Continue your free PMP pathway, or explore the Premium PMP Preparation Program for deeper scenario practice, mock exams, weak-area tracking, and structured coaching.</p><div class="cta-buttons">${linkBtn(FREE_COURSE_URL,"Return to Free PMP Course","btn-primary")}${linkBtn(PREMIUM_URL,"Explore Premium PMP Program","")}</div></div>`;
+}else if(score>=6){
+cls="mid";band="Integration Knowledge Gaps Identified";
+msg="You understand the fundamentals, but some Integration traps are still blending together. Review the charter versus project management plan, change-control sequence, approval authority, baseline updates, tailoring, and continuous knowledge management.";
+cta=`<div class="cta"><h3>You are close — strengthen the gaps now</h3><p class="small">Join the <strong>Premium PMP Preparation Program</strong> for structured guidance, PMP mindset training, detailed answer reasoning, topic practice, and full mock exams.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Review Free Course","")}</div></div>`;
+}else{
+cls="low";band="Integration Management Needs Attention";
+msg="The result shows that project authorization, integrated planning, change control, lifecycle tailoring, and closure logic need more review. Focus on coordinating the whole project rather than treating each knowledge area independently.";
+cta=`<div class="cta"><h3>Strengthen the Integration mindset</h3><p class="small">The Premium PMP Preparation Program is designed to help you distinguish tempting distractors and apply Integration logic correctly in situational questions.</p><div class="cta-buttons">${linkBtn(PREMIUM_URL,"Join Premium PMP Program","btn-primary")}${linkBtn(FREE_COURSE_URL,"Rewatch the Free Lesson","")}</div></div>`;
+}
+const review=QUESTIONS.map((q,i)=>{const a=answers[i],r=!a?"skipped":a===q.correct?"correct":"incorrect";return `<div class="revitem ${r}"><h3>Question ${i+1}</h3><p class="small"><strong>${esc(q.scenario)}</strong></p><div class="answerline"><strong>Your answer:</strong> ${esc(a?choice(q,a):"Skipped")}</div><div class="answerline"><strong>Correct answer:</strong> ${esc(choice(q,q.correct))}</div><div class="explain"><strong>Why:</strong> ${esc(q.explanation)}</div><div class="trapbox"><strong>PMI Trap:</strong> ${esc(q.trap)}</div></div>`}).join("");
+document.getElementById("resultsBody").innerHTML=`<div class="center"><div class="brand">PMI EXAM SIMULATOR</div><h1>Integration Management</h1>${timeExpired?'<p class="small" style="color:var(--bad);font-weight:700">Time expired — submitted automatically.</p>':""}<div class="scoreBig">${score}/10</div><div class="hero ${cls}">${band}</div><div class="bar"><span style="width:${pct}%"></span></div><p class="small muted">${pct}% · Target score 80%</p></div>
+<div class="statrow"><div class="statbox"><div class="statv">${score}</div><div class="statl">Correct</div></div><div class="statbox"><div class="statv">${wrong}</div><div class="statl">Incorrect</div></div><div class="statbox"><div class="statv">${skipped}</div><div class="statl">Skipped</div></div><div class="statbox"><div class="statv">${elapsed}</div><div class="statl">Time Used</div></div></div>
+<div class="result-message">${esc(msg)}</div>${cta}
+<h2>Answer Review &amp; PMI Traps</h2><p class="small muted">Study the trap explanation even when you answered correctly. The goal is to understand why the distractors were tempting.</p>${review}
+<div class="center" style="margin-top:1rem"><button class="btn-primary" onclick="restartExam()">Retake Simulator</button><button onclick="toggleTheme()">Theme</button></div>`;
+showScreen("results");
+}
+function restartExam(){current=0;answers=Array(QUESTIONS.length).fill(null);flags=Array(QUESTIONS.length).fill(false);secondsLeft=800;startedAt=null;showScreen("intro")}
+function choice(q,l){return q.choices.find(c=>c.startsWith(l+"."))||l}
+function fmt(s){const m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,"0")}`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function linkBtn(url,label,cls){if(!url||url.includes("YOUR_"))return `<button class="${cls}" onclick="alert('Add your Skool link in the HTML: PREMIUM_URL / FREE_COURSE_URL near the top of the script.')">${esc(label)}</button>`;return `<button class="${cls}" onclick="window.open('${esc(url)}','_blank','noopener')">${esc(label)}</button>`}
+</script>
+</body>
+</html>
